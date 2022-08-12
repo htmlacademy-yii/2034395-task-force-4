@@ -1,7 +1,7 @@
 # Личный проект «TaskForce»
 
 * Студент: [Кирилл Кузнецов](https://up.htmlacademy.ru/yii/4/user/2034395).
-* Наставник: `Неизвестно`.
+* Наставник: [Даниил Стерликов](https://htmlacademy.ru/profile/id1588317).
 
 ---
 
