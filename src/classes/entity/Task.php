@@ -1,5 +1,6 @@
 <?php
-namespace 'task-force\classes\entity';
+
+namespace TaskForce\classes\entity;
 
 class Task
 {
@@ -27,11 +28,9 @@ class Task
         self::ACTION_DECLINE => 'Отказ от задания',
         self::ACTION_END => 'Завершение задания'
     ];
-
+    public string $status = self::STATUS_NEW;
     private $customer_id;
     private $performer_id;
-
-    public string $status = self::STATUS_NEW;
 
     public function __construct($customer, $performer)
     {

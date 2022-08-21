@@ -1,4 +1,7 @@
 <?php
+
+use TaskForce\classes\entity\Task;
+
 require_once "vendor/autoload.php";
 
 $strategy = new Task(0, 1);
