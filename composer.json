@@ -1,0 +1,17 @@
+{
+    "name": "parismay/task-force",
+    "description": "htmlacademy",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "TaskForce\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kirill Kuznetsov"
+        }
+    ],
+    "require": {}
+}

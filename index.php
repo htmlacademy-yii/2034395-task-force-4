@@ -1,6 +1,8 @@
 <?php
-set_include_path('classes');
-spl_autoload_register();
+
+use TaskForce\classes\entity\Task;
+
+require_once "vendor/autoload.php";
 
 $strategy = new Task(0, 1);
 
