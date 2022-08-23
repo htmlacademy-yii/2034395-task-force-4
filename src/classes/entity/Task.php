@@ -28,14 +28,15 @@ class Task
         self::ACTION_DECLINE => 'Отказ от задания',
         self::ACTION_END => 'Завершение задания'
     ];
+    
     public string $status = self::STATUS_NEW;
-    private $customer_id;
-    private $performer_id;
+    private int $customer_id;
+    private int $performer_id;
 
-    public function __construct($customer, $performer)
+    public function __construct($customer_id, $performer_id)
     {
-        $this->customer_id = $customer;
-        $this->performer_id = $performer;
+        $this->customer_id = $customer_id;
+        $this->performer_id = $performer_id;
     }
 
     public function getNextStatus($action): string
@@ -46,16 +47,16 @@ class Task
             self::ACTION_ACCEPT => self::STATUS_IN_WORK,
             self::ACTION_DECLINE => self::STATUS_FAILED,
             self::ACTION_END => self::STATUS_PERFORMED,
-            default => 'error',
+            default => '',
         };
     }
 
-    public function getAvailableActions(): string|array
+    public function getAvailableActions(): array
     {
         return match ($this->status) {
             self::STATUS_NEW => [self::ACTION_ACCEPT, self::ACTION_CANCEL],
             self::STATUS_IN_WORK => [self::ACTION_DECLINE, self::ACTION_END],
-            default => 'no actions available',
+            default => [],
         };
     }
 }
