@@ -8,11 +8,7 @@ class CancelAction extends AbstractAction
         return 'Отмена задания';
     }
 
-    public function getName(): string {
-        return 'cancel';
-    }
-
-    public function rightsCheck($user_id, $customer_id, $performer_id): bool {
+    public function checkRights($user_id, $customer_id, $performer_id): bool {
         return $user_id === $customer_id;
     }
 }

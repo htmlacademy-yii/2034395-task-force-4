@@ -8,11 +8,7 @@ class CreateAction extends AbstractAction
         return 'Добавление задания';
     }
 
-    public function getName(): string {
-        return 'new';
-    }
-
-    public function rightsCheck($user_id, $customer_id, $performer_id): bool {
+    public function checkRights($user_id, $customer_id, $performer_id): bool {
         return $user_id === $customer_id;
     }
 }

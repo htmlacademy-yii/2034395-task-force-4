@@ -8,11 +8,7 @@ class EndAction extends AbstractAction
         return 'Завершения задания';
     }
 
-    public function getName(): string {
-        return 'end';
-    }
-
-    public function rightsCheck($user_id, $customer_id, $performer_id): bool {
+    public function checkRights($user_id, $customer_id, $performer_id): bool {
         return $user_id === $performer_id;
     }
 }

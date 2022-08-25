@@ -8,11 +8,7 @@ class AcceptAction extends AbstractAction
         return 'Старт задания';
     }
 
-    public function getName(): string {
-        return 'accept';
-    }
-
-    public function rightsCheck($user_id, $customer_id, $performer_id): bool {
+    public function checkRights($user_id, $customer_id, $performer_id): bool {
         return $user_id === $performer_id;
     }
 }
