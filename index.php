@@ -18,15 +18,16 @@ $declineAction = new DeclineAction();
 $endAction = new EndAction();
 
 assert_options(ASSERT_ACTIVE, true);
-assert_options(ASSERT_WARNING, true);
-assert_options(ASSERT_BAIL, true);
-assert($strategy->getNextStatus($createAction) == Task::STATUS_NEW, $exception = new Exception('Ошибка статуса'));
-assert($strategy->getNextStatus($cancelAction) == Task::STATUS_NEW, $exception = new Exception('Ошибка статуса'));
+assert_options(ASSERT_WARNING, false);
+assert_options(ASSERT_BAIL, false);
+assert_options(ASSERT_EXCEPTION,  false);
+assert_options(ASSERT_CALLBACK, function($file, $line, $assertion, $message) {
+    echo "$message <br>";
+});
 
-$arr = $strategy->getAvailableActions();
+assert($strategy->getNextStatus($createAction) === Task::STATUS_NEW, 'Ошибка статуса');
+assert($strategy->getNextStatus($cancelAction) === Task::STATUS_NEW, 'Ошибка статуса');
+assert($strategy->getAvailableActions() === [$cancelAction::class], 'Ошибка доступных действий');
+assert($strategy->getAvailableActions() === [$endAction::class], 'Ошибка доступных действий');
 
-foreach ($arr as $el) {
-    if ($el) {
-        echo($el . '<br>');
-    }
-}
+echo 'Done! <br>';
