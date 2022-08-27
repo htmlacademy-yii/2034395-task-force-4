@@ -8,7 +8,7 @@ class AcceptAction extends AbstractAction
         return 'Старт задания';
     }
 
-    public function checkRights($user_id, $customer_id, $performer_id): bool {
-        return $user_id === $performer_id;
+    public function checkRights(int $userId, int $customerId, int $performerId): bool {
+        return $userId === $performerId;
     }
 }

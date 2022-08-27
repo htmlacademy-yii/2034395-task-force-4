@@ -37,18 +37,18 @@ class Task
     ];
 
     public string $status = self::STATUS_NEW;
-    private int $user_id;
-    private int $customer_id;
-    private int $performer_id;
+    private int $userId;
+    private int $customerId;
+    private int $performerId;
 
-    public function __construct($user_id, $customer_id, $performer_id)
+    public function __construct(int $userId, int $customerId, int $performerId)
     {
-        $this->user_id = $user_id;
-        $this->customer_id = $customer_id;
-        $this->performer_id = $performer_id;
+        $this->userId = $userId;
+        $this->customerId = $customerId;
+        $this->performerId = $performerId;
     }
 
-    public function getNextStatus($AbstractAction): string
+    public function getNextStatus(AbstractAction $AbstractAction): string
     {
         return match ($AbstractAction::class) {
             CreateAction::class => self::STATUS_NEW,
@@ -62,17 +62,13 @@ class Task
 
     public function getAvailableActions(): array
     {
-        $arr = self::ACTIONS_MAP[$this->status] ?? [];
+        $availableActionsList = self::ACTIONS_MAP[$this->status] ?? [];
         $result = [];
 
-        if (count($arr) === 0) {
-            return [];
-        }
-
-        foreach ($arr as $AbstractAction) {
+        foreach ($availableActionsList as $AbstractAction) {
             $action = new $AbstractAction();
 
-            if ($action->checkRights($this->user_id, $this->customer_id, $this->performer_id)) {
+            if ($action->checkRights($this->userId, $this->customerId, $this->performerId)) {
                 $result[] = $AbstractAction;
             }
         }

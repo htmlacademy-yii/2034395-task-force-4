@@ -11,15 +11,19 @@ require_once "vendor/autoload.php";
 
 $strategy = new Task(1, 1, 2);
 
-$create_action = new CreateAction();
+$createAction = new CreateAction();
+$cancelAction = new CancelAction();
+$acceptAction = new AcceptAction();
+$declineAction = new DeclineAction();
+$endAction = new EndAction();
 
-if ($strategy->getNextStatus($create_action) == Task::STATUS_NEW) {
-    echo('create action <br>');
-} else {
-    echo('error <br>');
-}
+assert_options(ASSERT_ACTIVE, true);
+assert_options(ASSERT_WARNING, true);
+assert_options(ASSERT_BAIL, true);
+assert($strategy->getNextStatus($createAction) == Task::STATUS_NEW, $exception = new Exception('Ошибка статуса'));
+assert($strategy->getNextStatus($cancelAction) == Task::STATUS_NEW, $exception = new Exception('Ошибка статуса'));
 
-$arr = $strategy->getAvailableActions($create_action);
+$arr = $strategy->getAvailableActions();
 
 foreach ($arr as $el) {
     if ($el) {

@@ -8,7 +8,7 @@ class CreateAction extends AbstractAction
         return 'Добавление задания';
     }
 
-    public function checkRights($user_id, $customer_id, $performer_id): bool {
-        return $user_id === $customer_id;
+    public function checkRights(int $userId, int $customerId, int $performerId): bool {
+        return $userId === $customerId;
     }
 }
