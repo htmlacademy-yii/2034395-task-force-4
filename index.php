@@ -27,7 +27,10 @@ assert_options(ASSERT_CALLBACK, function($file, $line, $assertion, $message) {
 
 assert($strategy->getNextStatus($createAction) === Task::STATUS_NEW, 'Ошибка статуса');
 assert($strategy->getNextStatus($cancelAction) === Task::STATUS_NEW, 'Ошибка статуса');
-assert($strategy->getAvailableActions() === [$cancelAction::class], 'Ошибка доступных действий');
-assert($strategy->getAvailableActions() === [$endAction::class], 'Ошибка доступных действий');
+assert($strategy->getAvailableActions() === [$cancelAction::class], 'Ошибка: нет прав на выполнение действия "Отменить задание"');
+assert($strategy->getAvailableActions() === [$endAction::class], 'Ошибка: нет прав на выполнение действия "Завершить задание"');
+assert($strategy->getAvailableActions() === [$acceptAction::class], 'Ошибка: нет прав на выполнение действия "Принять задание"');
+assert($strategy->getAvailableActions() === [$declineAction::class], 'Ошибка: нет прав на выполнение действия "Отклонить задание"');
+assert($strategy->getAvailableActions() === [$createAction::class], 'Ошибка: нет прав на выполнение действия "Создать задание"');
 
 echo 'Done! <br>';

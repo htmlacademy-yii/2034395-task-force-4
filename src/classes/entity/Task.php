@@ -11,6 +11,7 @@ use TaskForce\classes\actions\EndAction;
 
 class Task
 {
+    const STATUS_UNDEFINED = 'undefined';
     const STATUS_NEW = 'new';
     const STATUS_CANCELED = 'canceled';
     const STATUS_IN_WORK = 'in work';
@@ -26,6 +27,9 @@ class Task
     ];
 
     const ACTIONS_MAP = [
+        self::STATUS_UNDEFINED => [
+            CreateAction::class
+        ],
         self::STATUS_NEW => [
             AcceptAction::class,
             CancelAction::class
@@ -36,7 +40,7 @@ class Task
         ],
     ];
 
-    public string $status = self::STATUS_NEW;
+    public string $status = self::STATUS_UNDEFINED;
     private int $userId;
     private int $customerId;
     private int $performerId;
