@@ -2,19 +2,21 @@
 
 namespace TaskForce\classes\entity;
 
+use TaskForce\classes\actions\AbstractAction;
+use TaskForce\classes\actions\CreateAction;
+use TaskForce\classes\actions\CancelAction;
+use TaskForce\classes\actions\AcceptAction;
+use TaskForce\classes\actions\DeclineAction;
+use TaskForce\classes\actions\EndAction;
+
 class Task
 {
+    const STATUS_UNDEFINED = 'undefined';
     const STATUS_NEW = 'new';
     const STATUS_CANCELED = 'canceled';
     const STATUS_IN_WORK = 'in work';
     const STATUS_PERFORMED = 'performed';
     const STATUS_FAILED = 'failed';
-
-    const ACTION_CREATE = 'create';
-    const ACTION_CANCEL = 'cancel';
-    const ACTION_ACCEPT = 'accept';
-    const ACTION_DECLINE = 'decline';
-    const ACTION_END = 'end';
 
     const TASK_MAP = [
         self::STATUS_NEW => 'Новое',
@@ -22,41 +24,59 @@ class Task
         self::STATUS_IN_WORK => 'На исполнении',
         self::STATUS_PERFORMED => 'Завершено',
         self::STATUS_FAILED => 'Провалено',
-        self::ACTION_CREATE => 'Добавление задания',
-        self::ACTION_CANCEL => 'Отмена задания',
-        self::ACTION_ACCEPT => 'Старт задания',
-        self::ACTION_DECLINE => 'Отказ от задания',
-        self::ACTION_END => 'Завершение задания'
     ];
-    
-    public string $status = self::STATUS_NEW;
-    private int $customer_id;
-    private int $performer_id;
 
-    public function __construct($customer_id, $performer_id)
+    const ACTIONS_MAP = [
+        self::STATUS_UNDEFINED => [
+            CreateAction::class
+        ],
+        self::STATUS_NEW => [
+            AcceptAction::class,
+            CancelAction::class
+        ],
+        self::STATUS_IN_WORK => [
+            DeclineAction::class,
+            EndAction::class
+        ],
+    ];
+
+    public string $status = self::STATUS_UNDEFINED;
+    private int $userId;
+    private int $customerId;
+    private int $performerId;
+
+    public function __construct(int $userId, int $customerId, int $performerId)
     {
-        $this->customer_id = $customer_id;
-        $this->performer_id = $performer_id;
+        $this->userId = $userId;
+        $this->customerId = $customerId;
+        $this->performerId = $performerId;
     }
 
-    public function getNextStatus($action): string
+    public function getNextStatus(AbstractAction $AbstractAction): string
     {
-        return match ($action) {
-            self::ACTION_CREATE => self::STATUS_NEW,
-            self::ACTION_CANCEL => self::STATUS_CANCELED,
-            self::ACTION_ACCEPT => self::STATUS_IN_WORK,
-            self::ACTION_DECLINE => self::STATUS_FAILED,
-            self::ACTION_END => self::STATUS_PERFORMED,
+        return match ($AbstractAction::class) {
+            CreateAction::class => self::STATUS_NEW,
+            CancelAction::class => self::STATUS_CANCELED,
+            AcceptAction::class => self::STATUS_IN_WORK,
+            DeclineAction::class => self::STATUS_FAILED,
+            EndAction::class => self::STATUS_PERFORMED,
             default => '',
         };
     }
 
     public function getAvailableActions(): array
     {
-        return match ($this->status) {
-            self::STATUS_NEW => [self::ACTION_ACCEPT, self::ACTION_CANCEL],
-            self::STATUS_IN_WORK => [self::ACTION_DECLINE, self::ACTION_END],
-            default => [],
-        };
+        $availableActionsList = self::ACTIONS_MAP[$this->status] ?? [];
+        $result = [];
+
+        foreach ($availableActionsList as $AbstractAction) {
+            $action = new $AbstractAction();
+
+            if ($action->checkRights($this->userId, $this->customerId, $this->performerId)) {
+                $result[] = $AbstractAction;
+            }
+        }
+
+        return $result;
     }
 }
