@@ -6,12 +6,28 @@ use TaskForce\classes\actions\CancelAction;
 use TaskForce\classes\actions\AcceptAction;
 use TaskForce\classes\actions\DeclineAction;
 use TaskForce\classes\actions\EndAction;
+use TaskForce\classes\exceptions\WrongStatusException;
 
 require_once "vendor/autoload.php";
 
-$taskStatusNew = new Task(1, 1, 2);
-$taskUserCustomer = new Task(1, 1, 2);
-$taskUserPerformer = new Task(2, 1, 2);
+$taskStatusNew = null;
+$taskUserCustomer = null;
+$taskUserPerformer = null;
+
+try {
+    $taskStatusNew = new Task(Task::STATUS_NEW, 1, 1, 2);
+    $taskUserCustomer = new Task(Task::STATUS_UNDEFINED, 1, 1, 2);
+    $taskUserPerformer = new Task(Task::STATUS_NEW, 2, 1, 2);
+
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+try {
+    $task = new Task("test", 1, 1);
+} catch (Exception $e) {
+    assert(get_class($e) === WrongStatusException::class, "Status Exception not equal WrongStatusException::class");
+}
 
 $createAction = new CreateAction();
 $cancelAction = new CancelAction();
@@ -29,7 +45,6 @@ assert_options(ASSERT_CALLBACK, function($file, $line, $assertion, $message) {
 });
 
 // Проверка каждого действия на следующий за ним статус задания
-assert($taskStatusNew->getNextStatus($createAction) === Task::STATUS_NEW, 'Ошибка статуса "Новое задание" (STATUS_NEW)');
 assert($taskStatusNew->getNextStatus($cancelAction) === Task::STATUS_CANCELED, 'Ошибка статуса "Задание отменено" (STATUS_CANCELED)');
 assert($taskStatusNew->getNextStatus($acceptAction) === Task::STATUS_IN_WORK, 'Ошибка статуса "Задание отменено" (STATUS_IN_WORK)');
 assert($taskStatusNew->getNextStatus($declineAction) === Task::STATUS_FAILED, 'Ошибка статуса "Задание отменено" (STATUS_FAILED)');
@@ -52,3 +67,14 @@ assert($taskUserPerformer->getAvailableActions() === [$acceptAction::class], 'О
 $taskUserPerformer->status = Task::STATUS_IN_WORK;
 // Проверка доступных (DECLINE_ACTION, END_ACTION) пользователю, являющемуся исполнителем, действий для принятого (STATUS_IN_WORK) задания
 assert($taskUserPerformer->getAvailableActions() === [$declineAction::class, $endAction::class], 'Ошибка действия "Отказ от задания" (DeclineAction)');
+
+// Проверка каждого действия на следующий за ним статус задания
+try {
+    echo $taskStatusNew->getNextStatus($createAction) . '<br>';
+    echo $taskStatusNew->getNextStatus($cancelAction) . '<br>';
+    echo $taskStatusNew->getNextStatus($acceptAction) . '<br>';
+    echo $taskStatusNew->getNextStatus($declineAction) . '<br>';
+    echo $taskStatusNew->getNextStatus($endAction) . '<br>';
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
