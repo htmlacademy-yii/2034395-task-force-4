@@ -61,7 +61,7 @@ class Task
         $this->customerId = $customerId;
         $this->performerId = $performerId;
 
-        if (!self::STATUS_MAP[$status]) {
+        if (empty(self::STATUS_MAP[$status])) {
             throw new WrongStatusException("Передано несуществующее имя статуса <br>");
         }
 
