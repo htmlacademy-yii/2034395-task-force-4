@@ -7,7 +7,8 @@ use taskForce;
 CREATE TABLE `categories`
 (
   `id`   INT AUTO_INCREMENT PRIMARY KEY,
-  `name` CHAR(64)
+  `name` CHAR(64),
+  `icon` CHAR(64)
 );
 
 CREATE TABLE `users`
@@ -28,8 +29,8 @@ CREATE TABLE `users`
 
 CREATE TABLE `user_categories`
 (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT,
+  `id`          INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id`     INT,
   `category_id` INT,
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
@@ -92,3 +93,11 @@ CREATE TABLE `reviews`
   FOREIGN KEY (`executor_id`) REFERENCES `users` (`id`),
   FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`)
 );
+
+CREATE TABLE `cities`
+(
+  `id`   INT AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(128),
+  `lat`  FLOAT,
+  `long` FLOAT
+)
