@@ -3,14 +3,14 @@ CREATE DATABASE taskForce
 
 use taskForce;
 
-CREATE TABLE `categories`
+CREATE TABLE `category`
 (
     `id`   INT AUTO_INCREMENT PRIMARY KEY,
     `name` CHAR(64),
     `icon` CHAR(64)
 );
 
-CREATE TABLE `users`
+CREATE TABLE `user`
 (
     `id`                INT AUTO_INCREMENT PRIMARY KEY,
     `email`             VARCHAR(320) UNIQUE,
@@ -26,16 +26,16 @@ CREATE TABLE `users`
     `registration_date` TIMESTAMP
 );
 
-CREATE TABLE `user_categories`
+CREATE TABLE `user_category`
 (
     `id`          INT AUTO_INCREMENT PRIMARY KEY,
     `user_id`     INT,
     `category_id` INT,
-    FOREIGN KEY (`user_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`category_id`) REFERENCES category (`id`)
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
 );
 
-CREATE TABLE `tasks`
+CREATE TABLE `task`
 (
     `id`             INT AUTO_INCREMENT PRIMARY KEY,
     `status`         TINYTEXT,
@@ -48,39 +48,39 @@ CREATE TABLE `tasks`
     `location`       TEXT,
     `budget`         INT,
     `execution_date` TIMESTAMP,
-    FOREIGN KEY (`customer_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`executor_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`category_id`) REFERENCES category (`id`)
+    FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
 );
 
-CREATE TABLE `files`
+CREATE TABLE `file`
 (
     `id`   INT AUTO_INCREMENT PRIMARY KEY,
     `url`  VARCHAR(2048),
     `type` VARCHAR(16)
 );
 
-CREATE TABLE `task_files`
+CREATE TABLE `task_file`
 (
     `id`      INT AUTO_INCREMENT PRIMARY KEY,
     `task_id` INT,
     `file_id` INT,
-    FOREIGN KEY (`task_id`) REFERENCES task (`id`),
-    FOREIGN KEY (`file_id`) REFERENCES file (`id`)
+    FOREIGN KEY (`task_id`) REFERENCES `task` (`id`),
+    FOREIGN KEY (`file_id`) REFERENCES `file` (`id`)
 );
 
-CREATE TABLE `responses`
+CREATE TABLE `response`
 (
     `id`            INT AUTO_INCREMENT PRIMARY KEY,
     `creation_date` TIMESTAMP,
     `text`          TEXT,
     `executor_id`   INT,
     `task_id`       INT,
-    FOREIGN KEY (`executor_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`task_id`) REFERENCES task (`id`)
+    FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`task_id`) REFERENCES `task` (`id`)
 );
 
-CREATE TABLE `reviews`
+CREATE TABLE `review`
 (
     `id`          INT AUTO_INCREMENT PRIMARY KEY,
     `customer_id` INT,
@@ -88,12 +88,12 @@ CREATE TABLE `reviews`
     `task_id`     INT,
     `grade`       INT,
     `text`        TEXT,
-    FOREIGN KEY (`customer_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`executor_id`) REFERENCES user (`id`),
-    FOREIGN KEY (`task_id`) REFERENCES task (`id`)
+    FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
+    FOREIGN KEY (`task_id`) REFERENCES `task` (`id`)
 );
 
-CREATE TABLE `cities`
+CREATE TABLE `city`
 (
     `id`   INT AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(128),
