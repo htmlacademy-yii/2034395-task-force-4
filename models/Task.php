@@ -17,11 +17,12 @@ use yii\db\ActiveRecord;
  * @property int|null $category_id
  * @property int|null $customer_id
  * @property int|null $executor_id
- * @property string|null $location
+ * @property int|null $city_id
  * @property int|null $budget
  * @property string|null $execution_date
  *
  * @property Category $category
+ * @property City $city
  * @property User $customer
  * @property User $executor
  * @property Response[] $responses
@@ -44,12 +45,13 @@ class Task extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['status', 'title', 'details', 'location'], 'string'],
+            [['status', 'title', 'details'], 'string'],
             [['creation_date', 'execution_date'], 'safe'],
-            [['category_id', 'customer_id', 'executor_id', 'budget'], 'integer'],
+            [['category_id', 'customer_id', 'executor_id', 'city_id', 'budget'], 'integer'],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['customer_id' => 'id']],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
+            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
         ];
     }
 
@@ -63,7 +65,6 @@ class Task extends ActiveRecord
             'creation_date' => 'Дата создания',
             'title' => 'Название',
             'details' => 'Описание',
-            'location' => 'Расположение',
             'budget' => 'Бюджет',
             'execution_date' => 'Дата сдачи',
         ];
@@ -77,6 +78,16 @@ class Task extends ActiveRecord
     public function getCategory(): ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
+    }
+
+    /**
+     * Gets query for [[City]].
+     *
+     * @return ActiveQuery
+     */
+    public function getCity(): ActiveQuery
+    {
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\ActiveQuery;
 
 /**
  * This is the model class for table "city".
@@ -12,6 +13,8 @@ use yii\db\ActiveRecord;
  * @property string|null $name
  * @property float|null $lat
  * @property float|null $long
+ *
+ * @property User[] $users
  */
 class City extends ActiveRecord
 {
@@ -41,8 +44,16 @@ class City extends ActiveRecord
     {
         return [
             'name' => 'Название',
-            'lat' => 'Широта',
-            'long' => 'Долгота',
         ];
+    }
+
+    /**
+     * Gets query for [[Users]].
+     *
+     * @return ActiveQuery
+     */
+    public function getUsers(): ActiveQuery
+    {
+        return $this->hasMany(User::class, ['city_id' => 'id']);
     }
 }

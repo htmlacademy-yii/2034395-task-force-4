@@ -10,20 +10,29 @@ CREATE TABLE `category`
     `icon` CHAR(64)
 );
 
+CREATE TABLE `city`
+(
+    `id`   INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(128),
+    `lat`  FLOAT,
+    `long` FLOAT
+);
+
 CREATE TABLE `user`
 (
     `id`                INT AUTO_INCREMENT PRIMARY KEY,
     `email`             VARCHAR(320) UNIQUE,
     `username`          VARCHAR(128),
     `password`          CHAR(64),
-    `city`              VARCHAR(128),
+    `city_id`           INT,
     `is_executor`       BOOL,
     `avatar_url`        VARCHAR(2048),
     `birthday`          TIMESTAMP,
     `phone_number`      VARCHAR(32),
     `telegram`          VARCHAR(128),
     `details`           TEXT,
-    `registration_date` TIMESTAMP
+    `registration_date` TIMESTAMP,
+    FOREIGN KEY (`city_id`) REFERENCES `city` (`id`)
 );
 
 CREATE TABLE `user_category`
@@ -45,12 +54,13 @@ CREATE TABLE `task`
     `category_id`    INT,
     `customer_id`    INT,
     `executor_id`    INT,
-    `location`       TEXT,
+    `city_id`        INT,
     `budget`         INT,
     `execution_date` TIMESTAMP,
     FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`),
     FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
-    FOREIGN KEY (`category_id`) REFERENCES `category` (`id`)
+    FOREIGN KEY (`category_id`) REFERENCES `category` (`id`),
+    FOREIGN KEY (`city_id`) REFERENCES `city` (`id`)
 );
 
 CREATE TABLE `file`
@@ -92,11 +102,3 @@ CREATE TABLE `review`
     FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
     FOREIGN KEY (`task_id`) REFERENCES `task` (`id`)
 );
-
-CREATE TABLE `city`
-(
-    `id`   INT AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(128),
-    `lat`  FLOAT,
-    `long` FLOAT
-)

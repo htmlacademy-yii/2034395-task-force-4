@@ -1,11 +1,12 @@
 <?php
 
 /** @var yii\web\View $this */
-
 /** @var string $content */
 
 use app\assets\AppAsset;
-use yii\bootstrap5\Html;
+use app\widgets\Alert;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 
@@ -28,39 +29,72 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
 
 <header class="page-header">
     <nav class="main-nav">
-        <a href='#' class="header-logo">
-            <img class="logo-image" src="img/logotype.png" width=227 height=60 alt="taskforce">
-        </a>
+        <?=
+        Html::a
+        (
+            Html::img
+            (
+                '@web/img/logotype.png',
+                [
+                    'class' => 'logo-image',
+                    'width' => 227,
+                    'height' => 60,
+                    'alt' => 'taskforce'
+                ]
+            ),
+            Url::to(['tasks/index']),
+            ['class' => 'header-logo']
+        );
+        ?>
+
         <div class="nav-wrapper">
+            <?php
+            $itemClass = 'list-item';
+            $activeItemClass = 'list-item list-item--active';
+
+            $items = [
+                ['label' => 'Новое', 'url' => ['tasks/index']],
+                ['label' => 'Мои задания', 'url' => ['tasks/owner']],
+                ['label' => 'Создать задание', 'url' => ['tasks/create']],
+                ['label' => 'Настройки', 'url' => ['settings/index']],
+            ];
+            ?>
+
             <ul class="nav-list">
-                <li class="list-item list-item--active">
-                    <a class="link link--nav" >Новое</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Мои задания</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Создать задание</a>
-                </li>
-                <li class="list-item">
-                    <a href="#" class="link link--nav">Настройки</a>
-                </li>
+                <?php foreach ($items as $item): ?>
+                    <li class="<?= Yii::$app->requestedRoute === $item['url'][0] ? $activeItemClass : $itemClass ?>">
+                        <?= Html::a($item['label'], Url::to($item['url']), ['class' => 'link link--nav']); ?>
+                    </li>
+                <?php endforeach; ?>
             </ul>
         </div>
     </nav>
     <div class="user-block">
-        <a href="#">
-            <img class="user-photo" src="img/man-glasses.png" width="55" height="55" alt="Аватар">
-        </a>
+        <?=
+        Html::a
+        (
+            Html::img
+            (
+                '@web/img/man-glasses.png',
+                [
+                    'class' => 'logo-photo',
+                    'width' => 55,
+                    'height' => 55,
+                    'alt' => 'Аватар'
+                ]
+            ),
+            Url::to(['profile/index'])
+        );
+        ?>
         <div class="user-menu">
             <p class="user-name">Василий</p>
             <div class="popup-head">
                 <ul class="popup-menu">
                     <li class="menu-item">
-                        <a href="#" class="link">Настройки</a>
+                        <?= Html::a('Настройки', ['settings/index'], ['class' => 'link']) ?>
                     </li>
                     <li class="menu-item">
-                        <a href="#" class="link">Связаться с нами</a>
+                        <?= Html::a('Связаться с нами', ['site/contact'], ['class' => 'link']) ?>
                     </li>
                     <li class="menu-item">
                         <a href="#" class="link">Выход из системы</a>
@@ -71,10 +105,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
     </div>
 </header>
 
-<main class="main-content main-content--left container">
-    <?= $content ?>
-</main>
-
+<?= Alert::widget() ?>
+<?= $content ?>
 
 <?php $this->endBody() ?>
 </body>

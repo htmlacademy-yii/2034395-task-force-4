@@ -7,6 +7,14 @@ $config = [
     'id' => 'basic-console',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
+    'controllerMap' => [
+        'fixture' => [
+            'class' => 'yii\faker\FixtureController',
+            'templatePath' => '@app/fixtures/templates',
+            'fixtureDataPath' => '@app/fixtures/data',
+            'namespace' => 'app\fixtures',
+        ],
+    ],
     'controllerNamespace' => 'app\commands',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',

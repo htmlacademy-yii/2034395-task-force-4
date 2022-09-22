@@ -1,0 +1,189 @@
+<?php
+
+/** @var yii\web\View $this */
+
+/** @var Task $model */
+
+require_once Yii::$app->basePath . '/helpers/mainHelper.php';
+
+use app\models\Task;
+use yii\helpers\Html;
+
+$this->title = "Task Force | $model->title ($model->budget ₽)";
+?>
+
+<main class="main-content container">
+    <div class="left-column">
+        <div class="head-wrapper">
+            <h3 class="head-main"><?= htmlspecialchars($model->title) ?></h3>
+            <p class="price price--big"><?= htmlspecialchars($model->budget) ?> ₽</p>
+        </div>
+        <p class="task-description"><?= htmlspecialchars($model->details) ?></p>
+        <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
+        <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
+        <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
+        <div class="task-map">
+            <?=
+            Html::img
+            (
+                '@web/img/map.png',
+                [
+                    'class' => 'map',
+                    'width' => 725,
+                    'height' => 346,
+                    'alt' => $model->city->name
+                ]
+            )
+            ?>
+            <p class="map-address town"><?= $model->city->name ?></p>
+            <p class="map-address">-</p>
+        </div>
+        <?php if (count($model->responses) > 0): ?>
+            <h4 class="head-regular">Отклики на задание</h4>
+        <?php endif; ?>
+        <?php foreach ($model->responses as $response): ?>
+            <div class="response-card">
+                <?=
+                Html::img
+                (
+                    $response->executor->avatar_url,
+                    [
+                        'class' => 'customer-photo',
+                        'width' => 146,
+                        'height' => 156,
+                        'alt' => "Фото заказчика"
+                    ]
+                )
+                ?>
+                <div class="feedback-wrapper">
+                    <a href="#" class="link link--block link--big">
+                        <?= htmlspecialchars($response->executor->username) ?>
+                    </a>
+                    <div class="response-wrapper">
+                        <div class="stars-rating small">
+                            <span class="fill-star">&nbsp;</span>
+                            <span class="fill-star">&nbsp;</span>
+                            <span class="fill-star">&nbsp;</span>
+                            <span class="fill-star">&nbsp;</span>
+                            <span>&nbsp;</span>
+                        </div>
+                        <p class="reviews">
+                            <?php $reviewsCount = count($response->executor->reviews) ?>
+                            <?= $reviewsCount . ' ' . getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
+                        </p>
+                    </div>
+                    <p class="response-message">
+                        <?= htmlspecialchars($response->text) ?>
+                    </p>
+
+                </div>
+                <div class="feedback-wrapper">
+                    <p class="info-text"><span
+                                class="current-time"><?= normalizeDate($response->creation_date) ?> </span>назад</p>
+                    <p class="price price--small">3700 ₽</p>
+                </div>
+                <div class="button-popup">
+                    <a href="#" class="button button--blue button--small">Принять</a>
+                    <a href="#" class="button button--orange button--small">Отказать</a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div class="right-column">
+        <div class="right-card black info-card">
+            <h4 class="head-card">Информация о задании</h4>
+            <dl class="black-list">
+                <dt>Категория</dt>
+                <dd><?= $model->category->name ?></dd>
+                <dt>Дата публикации</dt>
+                <dd><?= normalizeDate($model->creation_date) ?> назад</dd>
+                <dt>Срок выполнения</dt>
+                <dd><?= date('d M, H:i', strtotime($model->execution_date)) ?></dd>
+                <dt>Статус</dt>
+                <dd>Открыт для новых заказов</dd>
+            </dl>
+        </div>
+        <?php if (count($model->taskFiles) > 0): ?>
+            <div class="right-card white file-card">
+                <h4 class="head-card">Файлы задания</h4>
+                <ul class="enumeration-list">
+                    <?php foreach ($model->taskFiles as $file): ?>
+                        <li class="enumeration-item">
+                            <a href="#" class="link link--block link--clip">my_picture.jpg</a>
+                            <p class="file-size">356 Кб</p>
+                        </li>
+                        <li class="enumeration-item">
+                            <a href="#" class="link link--block link--clip">information.docx</a>
+                            <p class="file-size">12 Кб</p>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+    </div>
+</main>
+<section class="pop-up pop-up--refusal pop-up--close">
+    <div class="pop-up--wrapper">
+        <h4>Отказ от задания</h4>
+        <p class="pop-up-text">
+            <b>Внимание!</b><br>
+            Вы собираетесь отказаться от выполнения этого задания.<br>
+            Это действие плохо скажется на вашем рейтинге и увеличит счетчик проваленных заданий.
+        </p>
+        <a class="button button--pop-up button--orange">Отказаться</a>
+        <div class="button-container">
+            <button class="button--close" type="button">Закрыть окно</button>
+        </div>
+    </div>
+</section>
+<section class="pop-up pop-up--completion pop-up--close">
+    <div class="pop-up--wrapper">
+        <h4>Завершение задания</h4>
+        <p class="pop-up-text">
+            Вы собираетесь отметить это задание как выполненное.
+            Пожалуйста, оставьте отзыв об исполнителе и отметьте отдельно, если возникли проблемы.
+        </p>
+        <div class="completion-form pop-up--form regular-form">
+            <form>
+                <div class="form-group">
+                    <label class="control-label" for="completion-comment">Ваш комментарий</label>
+                    <textarea id="completion-comment"></textarea>
+                </div>
+                <p class="completion-head control-label">Оценка работы</p>
+                <div class="stars-rating big active-stars">
+                    <span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span>
+                </div>
+                <input type="submit" class="button button--pop-up button--blue" value="Завершить">
+            </form>
+        </div>
+        <div class="button-container">
+            <button class="button--close" type="button">Закрыть окно</button>
+        </div>
+    </div>
+</section>
+<section class="pop-up pop-up--act_response pop-up--close">
+    <div class="pop-up--wrapper">
+        <h4>Добавление отклика к заданию</h4>
+        <p class="pop-up-text">
+            Вы собираетесь оставить свой отклик к этому заданию.
+            Пожалуйста, укажите стоимость работы и добавьте комментарий, если необходимо.
+        </p>
+        <div class="addition-form pop-up--form regular-form">
+            <form>
+                <div class="form-group">
+                    <label class="control-label" for="addition-comment">Ваш комментарий</label>
+                    <textarea id="addition-comment"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="addition-price">Стоимость</label>
+                    <input id="addition-price" type="text">
+                </div>
+                <input type="submit" class="button button--pop-up button--blue" value="Завершить">
+            </form>
+        </div>
+        <div class="button-container">
+            <button class="button--close" type="button">Закрыть окно</button>
+        </div>
+    </div>
+</section>
+<div class="overlay"></div>
