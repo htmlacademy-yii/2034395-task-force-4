@@ -13,7 +13,7 @@ use yii\db\ActiveRecord;
  * @property string|null $email
  * @property string|null $username
  * @property string|null $password
- * @property string|null $city
+ * @property int|null $city_id
  * @property int|null $is_executor
  * @property string|null $avatar_url
  * @property string|null $birthday
@@ -22,6 +22,7 @@ use yii\db\ActiveRecord;
  * @property string|null $details
  * @property string|null $registration_date
  *
+ * @property City $city
  * @property Response[] $responses
  * @property Review[] $reviews
  * @property Review[] $reviews0
@@ -45,34 +46,42 @@ class User extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['is_executor'], 'integer'],
+            [['city_id', 'is_executor'], 'integer'],
             [['birthday', 'registration_date'], 'safe'],
             [['details'], 'string'],
             [['email'], 'string', 'max' => 320],
-            [['username', 'city', 'telegram'], 'string', 'max' => 128],
+            [['username', 'telegram'], 'string', 'max' => 128],
             [['password'], 'string', 'max' => 64],
             [['avatar_url'], 'string', 'max' => 2048],
             [['phone_number'], 'string', 'max' => 32],
             [['email'], 'unique'],
+            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'email' => 'Почта',
-            'username' => 'Имя',
+            'username' => 'Имя пользователя',
             'password' => 'Пароль',
-            'city' => 'Город',
             'birthday' => 'Дата рождения',
             'phone_number' => 'Номер телефона',
-            'telegram' => 'Telegram',
-            'details' => 'Информация',
             'registration_date' => 'Дата регистрации',
         ];
+    }
+
+    /**
+     * Gets query for [[City]].
+     *
+     * @return ActiveQuery
+     */
+    public function getCity(): ActiveQuery
+    {
+        return $this->hasOne(City::class, ['id' => 'city_id']);
     }
 
     /**
@@ -90,7 +99,7 @@ class User extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getReviewsByCustomerId(): ActiveQuery
+    public function getReviews(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['customer_id' => 'id']);
     }
@@ -100,7 +109,7 @@ class User extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getReviewsByExecutorId(): ActiveQuery
+    public function getReviews0(): ActiveQuery
     {
         return $this->hasMany(Review::class, ['executor_id' => 'id']);
     }
@@ -110,7 +119,7 @@ class User extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getTasksByCustomerId(): ActiveQuery
+    public function getTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['customer_id' => 'id']);
     }
@@ -120,7 +129,7 @@ class User extends ActiveRecord
      *
      * @return ActiveQuery
      */
-    public function getTasksByExecutorId(): ActiveQuery
+    public function getTasks0(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
     }
