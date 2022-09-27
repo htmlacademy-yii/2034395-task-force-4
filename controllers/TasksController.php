@@ -9,10 +9,14 @@ class TasksController extends Controller
 {
     public function actionIndex(): string
     {
-        $modelsList = Task::find()->where(['status' => 'new'])->limit(5)->orderBy(['creation_date' => SORT_DESC])->all();
+        $tasks = Task::find()
+            ->where(['status' => Task::STATUS_NEW])
+            ->limit(5)
+            ->orderBy(['id' => SORT_DESC])
+            ->all();
 
         return $this->render('index', [
-            'modelsList' => $modelsList,
+            'tasks' => $tasks,
         ]);
     }
 
@@ -28,8 +32,8 @@ class TasksController extends Controller
 
     public function actionView(int $id): string
     {
-        $model = Task::findOne($id);
+        $task = Task::findOne($id);
 
-        return $this->render('view', ['model' => $model]);
+        return $this->render('view', ['task' => $task]);
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-/** @var yii\web\View $this */
-
-/** @var Task[] $modelsList */
+/**
+ * @var yii\web\View $this
+ * @var Task[] $tasks
+ */
 
 require_once Yii::$app->basePath . '/helpers/mainHelper.php';
 
@@ -15,26 +16,26 @@ $this->title = 'Task Force | New Tasks';
 <main class="main-content container">
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
-        <?php foreach ($modelsList as $model): ?>
+        <?php foreach ($tasks as $task): ?>
             <div class="task-card">
                 <div class="header-task">
-                    <?= Html::a(htmlspecialchars($model->title), ['tasks/view', 'id' => $model->id], ['class' => 'link link--block link--big']) ?>
-                    <p class="price price--task"><?= htmlspecialchars($model->budget) ?> ₽</p>
+                    <?= Html::a(htmlspecialchars($task->title), ['tasks/view', 'id' => $task->id], ['class' => 'link link--block link--big']) ?>
+                    <p class="price price--task"><?= htmlspecialchars($task->budget) ?> ₽</p>
                 </div>
                 <p class="info-text">
-                    <span class="current-time"><?= normalizeDate($model->creation_date) ?> </span>назад
+                    <span class="current-time"><?= normalizeDate($task->creation_date) ?> </span>назад
                 </p>
                 <p class="task-text">
-                    <?= htmlspecialchars($model->details) ?>
+                    <?= htmlspecialchars($task->details) ?>
                 </p>
                 <div class="footer-task">
                     <p class="info-text town-text">
-                        <?= htmlspecialchars($model->city->name) ?>
+                        <?= htmlspecialchars($task->city->name) ?>
                     </p>
                     <p class="info-text category-text">
-                        <?= htmlspecialchars($model->category->name) ?>
+                        <?= htmlspecialchars($task->category->name) ?>
                     </p>
-                    <?= Html::a('Смотреть Задание', ['tasks/view', 'id' => $model->id], ['class' => 'button button--black']) ?>
+                    <?= Html::a('Смотреть Задание', ['tasks/view', 'id' => $task->id], ['class' => 'button button--black']) ?>
                 </div>
             </div>
         <?php endforeach; ?>
