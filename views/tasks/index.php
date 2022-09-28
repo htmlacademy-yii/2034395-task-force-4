@@ -1,14 +1,23 @@
 <?php
 
-/**
- * @var yii\web\View $this
- * @var Task[] $tasks
- */
-
 require_once Yii::$app->basePath . '/helpers/mainHelper.php';
 
 use app\models\Task;
+use app\models\Category;
+use app\models\TasksFilterForm;
+use yii\widgets\ActiveForm;
 use yii\helpers\Html;
+use yii\helpers\ArrayHelper;
+
+/**
+ * @var yii\web\View $this
+ * @var Task[] $tasks
+ * @var Category[] $categories
+ * @var TasksFilterForm $filter
+ * @var array $additionalParameters
+ */
+
+$categoryItems = ArrayHelper::map($categories, 'id', 'name');
 
 $this->title = 'Task Force | New Tasks';
 ?>
@@ -62,38 +71,50 @@ $this->title = 'Task Force | New Tasks';
     <div class="right-column">
         <div class="right-card black">
             <div class="search-form">
-                <form>
+                <?php
+                    $form = ActiveForm::begin([
+                        'fieldConfig' => [
+                            'template' => "{input}",
+                        ],
+                    ]);
+                ?>
                     <h4 class="head-card">Категории</h4>
-                    <div class="form-group">
-                        <div class="checkbox-wrapper">
-                            <label class="control-label" for="сourier-services">
-                                <input type="checkbox" id="сourier-services" checked>
-                                Курьерские услуги</label>
-                            <label class="control-label" for="cargo-transportation">
-                                <input id="cargo-transportation" type="checkbox">
-                                Грузоперевозки</label>
-                            <label class="control-label" for="translations">
-                                <input id="translations" type="checkbox">
-                                Переводы</label>
-                        </div>
-                    </div>
+                    <?=
+                    $form->field($filter, 'categoryIds')
+                        ->checkboxList(
+                            $categoryItems,
+                            [
+                                'class' => 'checkbox-wrapper',
+                                'itemOptions' => [
+                                    'labelOptions' => ['class' => 'control-label']
+                                ]
+                            ]
+                        );
+                    ?>
                     <h4 class="head-card">Дополнительно</h4>
-                    <div class="form-group">
-                        <label class="control-label" for="without-performer">
-                            <input id="without-performer" type="checkbox" checked>
-                            Без исполнителя</label>
-                    </div>
+                    <?=
+                    $form->field($filter, 'additional')
+                        ->checkboxList(
+                            $additionalParameters,
+                            [
+                                'class' => 'checkbox-wrapper',
+                                'itemOptions' => [
+                                    'labelOptions' => ['class' => 'control-label']
+                                ]
+                            ]
+                        );
+                    ?>
                     <h4 class="head-card">Период</h4>
-                    <div class="form-group">
-                        <label for="period-value"></label>
-                        <select id="period-value">
-                            <option>1 час</option>
-                            <option>12 часов</option>
-                            <option>24 часа</option>
-                        </select>
-                    </div>
-                    <input type="submit" class="button button--blue" value="Искать">
-                </form>
+                        <?=
+                        $form->field($filter, 'period')
+                            ->dropDownList([
+                                1 => '1 час',
+                                12 => '12 часов',
+                                24 => '24 часа',
+                            ], ['prompt' => 'Выберите период']);
+                        ?>
+                    <?= Html::submitInput('Искать', ['class' => 'button button--blue']) ?>
+                <?php ActiveForm::end(); ?>
             </div>
         </div>
     </div>

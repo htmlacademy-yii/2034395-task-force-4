@@ -15,7 +15,7 @@ function normalizeDate(string $date): string
 {
     $postUnix = strtotime($date);
     $interval = floor((time() - $postUnix) / 60);
-    $type = "minutes";
+    $type = '';
     $types = [
         "minutes" => ["минуту", "минуты", "минут"],
         "hours" => ["час", "часа", "часов"],
@@ -25,7 +25,10 @@ function normalizeDate(string $date): string
         "years" => ["год", "года", "лет"]
     ];
 
-    if ($interval / 60 < 24) {
+    if ($interval < 60) {
+        $type = "minutes";
+    }
+    else if ($interval / 60 < 24) {
         $type = "hours";
         $interval = floor($interval / 60);
     } else if ($interval / 60 / 24 < 7) {

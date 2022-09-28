@@ -608,19 +608,19 @@ template {
 
 @font-face {
     font-family: PT Sans;
-    src: url(../assets/fonts/ptsans.woff);
+    src: url(../fonts/ptsans.woff);
     font-weight: 400;
 }
 
 @font-face {
     font-family: PT Sans;
-    src: url(../assets/fonts/PTSans-Italic.ttf);
+    src: url(../fonts/PTSans-Italic.ttf);
     font-style: italic;
 }
 
 @font-face {
     font-family: PT Sans;
-    src: url(../assets/fonts/ptsansbold.woff);
+    src: url(../fonts/ptsansbold.woff);
     font-weight: 700;
 }
 
@@ -746,7 +746,7 @@ template {
     position: absolute;
     top: 8px;
     right: 6px;
-    background-image: url("../assets/img/arrow-hover.svg");
+    background-image: url("../img/arrow-hover.svg");
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -757,7 +757,7 @@ template {
     width: 30px;
     top: -3px;
     right: 0;
-    background-image: url("../assets/img/arrow.svg");
+    background-image: url("../img/arrow.svg");
 }
 
 .user-name:hover ~ .popup-head,
@@ -880,7 +880,7 @@ template {
 .stars-rating span::before {
     position: absolute;
     content: "";
-    background-image: url("../assets/img/star-empty.svg");
+    background-image: url("../img/star-empty.svg");
     background-size: 25px;
     background-position: center;
     background-repeat: no-repeat;
@@ -915,7 +915,7 @@ template {
 }
 
 .stars-rating .fill-star::before {
-    background-image: url("../assets/img/star-fill.svg");
+    background-image: url("../img/star-fill.svg");
 }
 
 .response-card {
@@ -1001,7 +1001,7 @@ template {
     content: "";
     width: 16px;
     height: 16px;
-    background-image: url("../assets/img/like.svg");
+    background-image: url("../img/like.svg");
     top: 0;
     left: 25px;
 }
@@ -1108,7 +1108,7 @@ template {
     height: 58px;
     top: -35px;
     left: 0;
-    background-image: url("../assets/img/file-icon.svg");
+    background-image: url("../img/file-icon.svg");
 }
 
 .file-card::before {
@@ -1174,19 +1174,19 @@ template {
 }
 
 .link--phone::after {
-    background-image: url("../assets/img/phone-icon.svg");
+    background-image: url("../img/phone-icon.svg");
 }
 
 .link--email::after {
-    background-image: url("../assets/img/email-icon.svg");
+    background-image: url("../img/email-icon.svg");
 }
 
 .link--tg::after {
-    background-image: url("../assets/img/tg-icon.svg");
+    background-image: url("../img/tg-icon.svg");
 }
 
 .file-card .link--clip::after {
-    background-image: url("../assets/img/clip-icon.svg");
+    background-image: url("../img/clip-icon.svg");
     background-position: center;
     background-repeat: no-repeat;
     top: 3px;
@@ -1247,7 +1247,7 @@ template {
     content: "";
     width: 76px;
     height: 82px;
-    background-image: url("../assets/img/grey-location.svg");
+    background-image: url("../img/grey-location.svg");
     bottom: 0;
     left: 27px;
 }
@@ -1335,13 +1335,13 @@ template {
 .town-text::after {
     width: 18px;
     height: 14px;
-    background-image: url("../assets/img/home-icon.svg");
+    background-image: url("../img/home-icon.svg");
 }
 
 .category-text::after {
     width: 18px;
     height: 18px;
-    background-image: url("../assets/img/category-icon.svg");
+    background-image: url("../img/category-icon.svg");
 }
 
 .pagination-list {
@@ -1391,7 +1391,7 @@ template {
     height: 30px;
     top: 10px;
     left: 10px;
-    background-image: url("../assets/img/arrow-hover.svg");
+    background-image: url("../img/arrow-hover.svg");
     background-repeat: no-repeat;
     background-position: center;
     z-index: -2;
@@ -1402,7 +1402,7 @@ template {
 }
 
 .mark:hover::after {
-    background-image: url("../assets/img/arrow.svg");
+    background-image: url("../img/arrow.svg");
 }
 
 .pagination-item:first-child::after {
@@ -1431,7 +1431,7 @@ select {
     -moz-appearance: none;
     appearance: none;
     overflow: hidden;
-    background-image: url("../assets/img/arrow-select.svg");
+    background-image: url("../img/arrow-select.svg");
     background-repeat: no-repeat;
     background-size: 20px 12px;
     background-position: 260px 14px;
@@ -1699,7 +1699,7 @@ input[type=date] {
     margin-top: 11px;
     font-size: 16px;
     color: #989898;
-    background-image: url("../assets/img/upload-icon.svg");
+    background-image: url("../img/upload-icon.svg");
     background-position: center 25px;
     background-repeat: no-repeat;
 }
@@ -1754,7 +1754,7 @@ form .has-error textarea:hover {
 }
 
 .location-icon {
-    background-image: url("../assets/img/location-icon.svg");
+    background-image: url("../img/location-icon.svg");
     background-repeat: no-repeat;
     background-size: 19px 24px;
     background-position: 630px 6px;
@@ -1765,7 +1765,7 @@ form .has-error textarea:hover {
     -moz-appearance: none;
     appearance: none;
     overflow: hidden;
-    background-image: url("../assets/img/rouble.svg");
+    background-image: url("../img/rouble.svg");
     background-repeat: no-repeat;
     background-size: 22px 22px;
     background-position: 160px 8px;
