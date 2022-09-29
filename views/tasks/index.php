@@ -1,7 +1,5 @@
 <?php
 
-require_once Yii::$app->basePath . '/helpers/mainHelper.php';
-
 use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
@@ -13,7 +11,7 @@ use yii\helpers\ArrayHelper;
  * @var yii\web\View $this
  * @var Task[] $tasks
  * @var Category[] $categories
- * @var TasksFilterForm $filter
+ * @var TasksFilterForm $filterForm
  * @var array $additionalParameters
  */
 
@@ -26,27 +24,7 @@ $this->title = 'Task Force | New Tasks';
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
         <?php foreach ($tasks as $task): ?>
-            <div class="task-card">
-                <div class="header-task">
-                    <?= Html::a(htmlspecialchars($task->title), ['tasks/view', 'id' => $task->id], ['class' => 'link link--block link--big']) ?>
-                    <p class="price price--task"><?= htmlspecialchars($task->budget) ?> ₽</p>
-                </div>
-                <p class="info-text">
-                    <span class="current-time"><?= normalizeDate($task->creation_date) ?> </span>назад
-                </p>
-                <p class="task-text">
-                    <?= htmlspecialchars($task->details) ?>
-                </p>
-                <div class="footer-task">
-                    <p class="info-text town-text">
-                        <?= htmlspecialchars($task->city->name) ?>
-                    </p>
-                    <p class="info-text category-text">
-                        <?= htmlspecialchars($task->category->name) ?>
-                    </p>
-                    <?= Html::a('Смотреть Задание', ['tasks/view', 'id' => $task->id], ['class' => 'button button--black']) ?>
-                </div>
-            </div>
+            <?= $this->render('_item.php', ['task' => $task]) ?>
         <?php endforeach; ?>
         <div class="pagination-wrapper">
             <ul class="pagination-list">
@@ -72,48 +50,48 @@ $this->title = 'Task Force | New Tasks';
         <div class="right-card black">
             <div class="search-form">
                 <?php
-                    $form = ActiveForm::begin([
-                        'fieldConfig' => [
-                            'template' => "{input}",
-                        ],
-                    ]);
+                $form = ActiveForm::begin([
+                    'fieldConfig' => [
+                        'template' => "{input}",
+                    ],
+                ]);
                 ?>
-                    <h4 class="head-card">Категории</h4>
-                    <?=
-                    $form->field($filter, 'categoryIds')
-                        ->checkboxList(
-                            $categoryItems,
-                            [
-                                'class' => 'checkbox-wrapper',
-                                'itemOptions' => [
-                                    'labelOptions' => ['class' => 'control-label']
-                                ]
+                <?= Html::tag('h4', 'Категории', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'categoryIds')
+                    ->checkboxList(
+                        $categoryItems,
+                        [
+                            'class' => 'checkbox-wrapper',
+                            'itemOptions' => [
+                                'labelOptions' => ['class' => 'control-label']
                             ]
-                        );
-                    ?>
-                    <h4 class="head-card">Дополнительно</h4>
-                    <?=
-                    $form->field($filter, 'additional')
-                        ->checkboxList(
-                            $additionalParameters,
-                            [
-                                'class' => 'checkbox-wrapper',
-                                'itemOptions' => [
-                                    'labelOptions' => ['class' => 'control-label']
-                                ]
+                        ]
+                    );
+                ?>
+                <?= Html::tag('h4', 'Дополнительно', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'additional')
+                    ->checkboxList(
+                        $additionalParameters,
+                        [
+                            'class' => 'checkbox-wrapper',
+                            'itemOptions' => [
+                                'labelOptions' => ['class' => 'control-label']
                             ]
-                        );
-                    ?>
-                    <h4 class="head-card">Период</h4>
-                        <?=
-                        $form->field($filter, 'period')
-                            ->dropDownList([
-                                1 => '1 час',
-                                12 => '12 часов',
-                                24 => '24 часа',
-                            ], ['prompt' => 'Выберите период']);
-                        ?>
-                    <?= Html::submitInput('Искать', ['class' => 'button button--blue']) ?>
+                        ]
+                    );
+                ?>
+                <?= Html::tag('h4', 'Период', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'period')
+                    ->dropDownList([
+                        '-1 hour' => '1 час',
+                        '-1 day' => 'Сутки',
+                        '-1 week' => 'Неделя',
+                    ], ['prompt' => 'Выберите период']);
+                ?>
+                <?= Html::submitInput('Искать', ['class' => 'button button--blue']) ?>
                 <?php ActiveForm::end(); ?>
             </div>
         </div>

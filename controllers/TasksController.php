@@ -22,37 +22,18 @@ class TasksController extends Controller
             ->orderBy(['id' => SORT_DESC])
             ->all();
         $categories = Category::find()->all();
-        $filter = new TasksFilterForm();
+        $filterForm = new TasksFilterForm();
 
-        if (Yii::$app->request->getIsPost() && $filter->load(Yii::$app->request->post()) && $filter->validate()) {
-            $tasks = Task::find()->where(['status' => Task::STATUS_NEW]);
-
-            if (!empty($filter->categoryIds)) {
-                $tasks = $tasks->andWhere(['category_id' => $filter->categoryIds]);
+        if ($this->request->getIsPost()) {
+            if ($filterForm->load($this->request->post()) && $filterForm->validate()) {
+                $tasks = $filterForm->filter();
             }
-
-            if (!empty($filter->additional)) {
-                foreach ($filter->additional as $condition) {
-                    $tasks = $tasks->andWhere($condition);
-                }
-            }
-
-            if ($filter->period > 0) {
-                $timestamp = strtotime("-$filter->period hour");
-                $datetime = date("Y-m-d H:i:s", $timestamp);
-
-                $tasks->andWhere(['>', 'creation_date', $datetime]);
-            }
-
-            $tasks = $tasks->limit(5)
-                ->orderBy(['id' => SORT_DESC])
-                ->all();
         }
 
         return $this->render('index', [
             'tasks' => $tasks,
             'categories' => $categories,
-            'filter' => $filter,
+            'filterForm' => $filterForm,
             'additionalParameters' => self::ADDITIONAL_PARAMETERS,
         ]);
     }

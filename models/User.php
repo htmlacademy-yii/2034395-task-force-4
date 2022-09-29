@@ -26,8 +26,8 @@ use yii\db\ActiveRecord;
  * @property Response[] $responses
  * @property Review[] $reviews
  * @property Review[] $reviews0
- * @property Task[] $tasks
- * @property Task[] $tasks0
+ * @property Task[] $customerTasks
+ * @property Task[] $executorTasks
  * @property UserCategory[] $userCategories
  */
 class User extends ActiveRecord
@@ -115,21 +115,21 @@ class User extends ActiveRecord
     }
 
     /**
-     * Gets query for [[Tasks]].
+     * Gets query for [[customerTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks(): ActiveQuery
+    public function getCustomerTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['customer_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Tasks0]].
+     * Gets query for [[executorTasks]].
      *
      * @return ActiveQuery
      */
-    public function getTasks0(): ActiveQuery
+    public function getExecutorTasks(): ActiveQuery
     {
         return $this->hasMany(Task::class, ['executor_id' => 'id']);
     }

@@ -5,10 +5,9 @@
  * @var Task $task
  */
 
-require_once Yii::$app->basePath . '/helpers/mainHelper.php';
-
 use app\models\Task;
 use yii\helpers\Html;
+use app\helpers\MainHelpers;
 
 $this->title = "Task Force | $task->title ($task->budget ₽)";
 ?>
@@ -70,7 +69,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                         </div>
                         <p class="reviews">
                             <?php $reviewsCount = count($response->executor->reviews) ?>
-                            <?= $reviewsCount . ' ' . getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
+                            <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
                         </p>
                     </div>
                     <p class="response-message">
@@ -80,7 +79,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                 </div>
                 <div class="feedback-wrapper">
                     <p class="info-text"><span
-                                class="current-time"><?= normalizeDate($response->creation_date) ?> </span>назад</p>
+                                class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
                     <p class="price price--small">3700 ₽</p>
                 </div>
                 <div class="button-popup">
@@ -97,7 +96,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                 <dt>Категория</dt>
                 <dd><?= $task->category->name ?></dd>
                 <dt>Дата публикации</dt>
-                <dd><?= normalizeDate($task->creation_date) ?> назад</dd>
+                <dd><?= MainHelpers::normalizeDate($task->creation_date) ?> назад</dd>
                 <dt>Срок выполнения</dt>
                 <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
                 <dt>Статус</dt>

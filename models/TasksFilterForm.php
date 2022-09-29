@@ -17,7 +17,7 @@ class TasksFilterForm extends Model
     {
         return [
             [['categoryIds', 'additional'], 'safe'],
-            ['period', 'integer'],
+            ['period', 'string'],
         ];
     }
 
@@ -31,5 +31,31 @@ class TasksFilterForm extends Model
             'additional' => 'Дополнительные параметры',
             'period' => 'Период'
         ];
+    }
+
+    public function filter(): array
+    {
+        $tasks = Task::find()->where(['status' => Task::STATUS_NEW]);
+
+        if (!empty($this->categoryIds)) {
+            $tasks = $tasks->andWhere(['category_id' => $this->categoryIds]);
+        }
+
+        if (!empty($this->additional)) {
+            foreach ($this->additional as $condition) {
+                $tasks = $tasks->andWhere($condition);
+            }
+        }
+
+        if (strlen($this->period) > 0) {
+            $timestamp = strtotime($this->period);
+            $datetime = date("Y-m-d H:i:s", $timestamp);
+
+            $tasks->andWhere(['>', 'creation_date', $datetime]);
+        }
+
+        return $tasks->limit(5)
+            ->orderBy(['id' => SORT_DESC])
+            ->all();
     }
 }
