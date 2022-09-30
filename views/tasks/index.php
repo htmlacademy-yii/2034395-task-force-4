@@ -1,13 +1,21 @@
 <?php
 
-/** @var yii\web\View $this */
-
-/** @var Task[] $modelsList */
-
-require_once Yii::$app->basePath . '/helpers/mainHelper.php';
-
 use app\models\Task;
+use app\models\Category;
+use app\models\TasksFilterForm;
+use yii\widgets\ActiveForm;
 use yii\helpers\Html;
+use yii\helpers\ArrayHelper;
+
+/**
+ * @var yii\web\View $this
+ * @var Task[] $tasks
+ * @var Category[] $categories
+ * @var TasksFilterForm $filterForm
+ * @var array $additionalParameters
+ */
+
+$categoryItems = ArrayHelper::map($categories, 'id', 'name');
 
 $this->title = 'Task Force | New Tasks';
 ?>
@@ -15,28 +23,8 @@ $this->title = 'Task Force | New Tasks';
 <main class="main-content container">
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
-        <?php foreach ($modelsList as $model): ?>
-            <div class="task-card">
-                <div class="header-task">
-                    <?= Html::a(htmlspecialchars($model->title), ['tasks/view', 'id' => $model->id], ['class' => 'link link--block link--big']) ?>
-                    <p class="price price--task"><?= htmlspecialchars($model->budget) ?> ₽</p>
-                </div>
-                <p class="info-text">
-                    <span class="current-time"><?= normalizeDate($model->creation_date) ?> </span>назад
-                </p>
-                <p class="task-text">
-                    <?= htmlspecialchars($model->details) ?>
-                </p>
-                <div class="footer-task">
-                    <p class="info-text town-text">
-                        <?= htmlspecialchars($model->city->name) ?>
-                    </p>
-                    <p class="info-text category-text">
-                        <?= htmlspecialchars($model->category->name) ?>
-                    </p>
-                    <?= Html::a('Смотреть Задание', ['tasks/view', 'id' => $model->id], ['class' => 'button button--black']) ?>
-                </div>
-            </div>
+        <?php foreach ($tasks as $task): ?>
+            <?= $this->render('_item.php', ['task' => $task]) ?>
         <?php endforeach; ?>
         <div class="pagination-wrapper">
             <ul class="pagination-list">
@@ -61,38 +49,50 @@ $this->title = 'Task Force | New Tasks';
     <div class="right-column">
         <div class="right-card black">
             <div class="search-form">
-                <form>
-                    <h4 class="head-card">Категории</h4>
-                    <div class="form-group">
-                        <div class="checkbox-wrapper">
-                            <label class="control-label" for="сourier-services">
-                                <input type="checkbox" id="сourier-services" checked>
-                                Курьерские услуги</label>
-                            <label class="control-label" for="cargo-transportation">
-                                <input id="cargo-transportation" type="checkbox">
-                                Грузоперевозки</label>
-                            <label class="control-label" for="translations">
-                                <input id="translations" type="checkbox">
-                                Переводы</label>
-                        </div>
-                    </div>
-                    <h4 class="head-card">Дополнительно</h4>
-                    <div class="form-group">
-                        <label class="control-label" for="without-performer">
-                            <input id="without-performer" type="checkbox" checked>
-                            Без исполнителя</label>
-                    </div>
-                    <h4 class="head-card">Период</h4>
-                    <div class="form-group">
-                        <label for="period-value"></label>
-                        <select id="period-value">
-                            <option>1 час</option>
-                            <option>12 часов</option>
-                            <option>24 часа</option>
-                        </select>
-                    </div>
-                    <input type="submit" class="button button--blue" value="Искать">
-                </form>
+                <?php
+                $form = ActiveForm::begin([
+                    'fieldConfig' => [
+                        'template' => "{input}",
+                    ],
+                ]);
+                ?>
+                <?= Html::tag('h4', 'Категории', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'categoryIds')
+                    ->checkboxList(
+                        $categoryItems,
+                        [
+                            'class' => 'checkbox-wrapper',
+                            'itemOptions' => [
+                                'labelOptions' => ['class' => 'control-label']
+                            ]
+                        ]
+                    );
+                ?>
+                <?= Html::tag('h4', 'Дополнительно', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'additional')
+                    ->checkboxList(
+                        $additionalParameters,
+                        [
+                            'class' => 'checkbox-wrapper',
+                            'itemOptions' => [
+                                'labelOptions' => ['class' => 'control-label']
+                            ]
+                        ]
+                    );
+                ?>
+                <?= Html::tag('h4', 'Период', ['class' => 'head-card']); ?>
+                <?=
+                $form->field($filterForm, 'period')
+                    ->dropDownList([
+                        '-1 hour' => '1 час',
+                        '-1 day' => 'Сутки',
+                        '-1 week' => 'Неделя',
+                    ], ['prompt' => 'Выберите период']);
+                ?>
+                <?= Html::submitInput('Искать', ['class' => 'button button--blue']) ?>
+                <?php ActiveForm::end(); ?>
             </div>
         </div>
     </div>

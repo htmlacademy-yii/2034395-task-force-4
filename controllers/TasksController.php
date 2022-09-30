@@ -2,17 +2,39 @@
 
 namespace app\controllers;
 
+use Yii;
 use yii\web\Controller;
 use app\models\Task;
+use app\models\Category;
+use app\models\TasksFilterForm;
 
 class TasksController extends Controller
 {
+    const ADDITIONAL_PARAMETERS = [
+        'executor_id = null' => 'Без исполнителя'
+    ];
+
     public function actionIndex(): string
     {
-        $modelsList = Task::find()->where(['status' => 'new'])->limit(5)->orderBy(['creation_date' => SORT_DESC])->all();
+        $tasks = Task::find()
+            ->where(['status' => Task::STATUS_NEW])
+            ->limit(5)
+            ->orderBy(['id' => SORT_DESC])
+            ->all();
+        $categories = Category::find()->all();
+        $filterForm = new TasksFilterForm();
+
+        if ($this->request->getIsPost()) {
+            if ($filterForm->load($this->request->post()) && $filterForm->validate()) {
+                $tasks = $filterForm->filter();
+            }
+        }
 
         return $this->render('index', [
-            'modelsList' => $modelsList,
+            'tasks' => $tasks,
+            'categories' => $categories,
+            'filterForm' => $filterForm,
+            'additionalParameters' => self::ADDITIONAL_PARAMETERS,
         ]);
     }
 
@@ -28,8 +50,8 @@ class TasksController extends Controller
 
     public function actionView(int $id): string
     {
-        $model = Task::findOne($id);
+        $task = Task::findOne($id);
 
-        return $this->render('view', ['model' => $model]);
+        return $this->render('view', ['task' => $task]);
     }
 }

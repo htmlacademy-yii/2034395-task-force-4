@@ -1,24 +1,24 @@
 <?php
 
-/** @var yii\web\View $this */
-
-/** @var Task $model */
-
-require_once Yii::$app->basePath . '/helpers/mainHelper.php';
+/**
+ * @var yii\web\View $this
+ * @var Task $task
+ */
 
 use app\models\Task;
 use yii\helpers\Html;
+use app\helpers\MainHelpers;
 
-$this->title = "Task Force | $model->title ($model->budget ₽)";
+$this->title = "Task Force | $task->title ($task->budget ₽)";
 ?>
 
 <main class="main-content container">
     <div class="left-column">
         <div class="head-wrapper">
-            <h3 class="head-main"><?= htmlspecialchars($model->title) ?></h3>
-            <p class="price price--big"><?= htmlspecialchars($model->budget) ?> ₽</p>
+            <h3 class="head-main"><?= htmlspecialchars($task->title) ?></h3>
+            <p class="price price--big"><?= htmlspecialchars($task->budget) ?> ₽</p>
         </div>
-        <p class="task-description"><?= htmlspecialchars($model->details) ?></p>
+        <p class="task-description"><?= htmlspecialchars($task->details) ?></p>
         <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
         <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
         <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
@@ -31,17 +31,17 @@ $this->title = "Task Force | $model->title ($model->budget ₽)";
                     'class' => 'map',
                     'width' => 725,
                     'height' => 346,
-                    'alt' => $model->city->name
+                    'alt' => $task->city->name
                 ]
             )
             ?>
-            <p class="map-address town"><?= $model->city->name ?></p>
+            <p class="map-address town"><?= $task->city->name ?></p>
             <p class="map-address">-</p>
         </div>
-        <?php if (count($model->responses) > 0): ?>
+        <?php if (count($task->responses) > 0): ?>
             <h4 class="head-regular">Отклики на задание</h4>
         <?php endif; ?>
-        <?php foreach ($model->responses as $response): ?>
+        <?php foreach ($task->responses as $response): ?>
             <div class="response-card">
                 <?=
                 Html::img
@@ -69,7 +69,7 @@ $this->title = "Task Force | $model->title ($model->budget ₽)";
                         </div>
                         <p class="reviews">
                             <?php $reviewsCount = count($response->executor->reviews) ?>
-                            <?= $reviewsCount . ' ' . getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
+                            <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
                         </p>
                     </div>
                     <p class="response-message">
@@ -79,7 +79,7 @@ $this->title = "Task Force | $model->title ($model->budget ₽)";
                 </div>
                 <div class="feedback-wrapper">
                     <p class="info-text"><span
-                                class="current-time"><?= normalizeDate($response->creation_date) ?> </span>назад</p>
+                                class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
                     <p class="price price--small">3700 ₽</p>
                 </div>
                 <div class="button-popup">
@@ -94,20 +94,20 @@ $this->title = "Task Force | $model->title ($model->budget ₽)";
             <h4 class="head-card">Информация о задании</h4>
             <dl class="black-list">
                 <dt>Категория</dt>
-                <dd><?= $model->category->name ?></dd>
+                <dd><?= $task->category->name ?></dd>
                 <dt>Дата публикации</dt>
-                <dd><?= normalizeDate($model->creation_date) ?> назад</dd>
+                <dd><?= MainHelpers::normalizeDate($task->creation_date) ?> назад</dd>
                 <dt>Срок выполнения</dt>
-                <dd><?= date('d M, H:i', strtotime($model->execution_date)) ?></dd>
+                <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
                 <dt>Статус</dt>
                 <dd>Открыт для новых заказов</dd>
             </dl>
         </div>
-        <?php if (count($model->taskFiles) > 0): ?>
+        <?php if (count($task->taskFiles) > 0): ?>
             <div class="right-card white file-card">
                 <h4 class="head-card">Файлы задания</h4>
                 <ul class="enumeration-list">
-                    <?php foreach ($model->taskFiles as $file): ?>
+                    <?php foreach ($task->taskFiles as $file): ?>
                         <li class="enumeration-item">
                             <a href="#" class="link link--block link--clip">my_picture.jpg</a>
                             <p class="file-size">356 Кб</p>

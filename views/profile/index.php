@@ -23,7 +23,7 @@ $this->title = 'Task Force | Settings';
             <div class="photo-editing">
                 <div>
                     <p class="form-label">Аватар</p>
-                    <img class="avatar-preview" src="../assets/img/man-glasses.png" width="83" height="83">
+                    <img class="avatar-preview" src="../img/man-glasses.png" width="83" height="83" alt="Аватар">
                 </div>
                 <input hidden value="Сменить аватар" type="file" id="button-input">
                 <label for="button-input" class="button button--black"> Сменить аватар</label>
