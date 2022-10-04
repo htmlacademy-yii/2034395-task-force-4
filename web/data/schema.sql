@@ -21,8 +21,10 @@ CREATE TABLE `city`
 CREATE TABLE `user`
 (
     `id`                INT AUTO_INCREMENT PRIMARY KEY,
+    `status`            VARCHAR(32),
     `email`             VARCHAR(320) UNIQUE,
     `username`          VARCHAR(128),
+    `age`               INT,
     `password`          CHAR(64),
     `city_id`           INT,
     `is_executor`       BOOL,
@@ -55,6 +57,7 @@ CREATE TABLE `task`
     `customer_id`    INT,
     `executor_id`    INT,
     `city_id`        INT,
+    `location`       TEXT,
     `budget`         INT,
     `execution_date` TIMESTAMP,
     FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`),
@@ -84,6 +87,7 @@ CREATE TABLE `response`
     `id`            INT AUTO_INCREMENT PRIMARY KEY,
     `creation_date` TIMESTAMP,
     `text`          TEXT,
+    `price`         INT,
     `executor_id`   INT,
     `task_id`       INT,
     FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
@@ -92,12 +96,13 @@ CREATE TABLE `response`
 
 CREATE TABLE `review`
 (
-    `id`          INT AUTO_INCREMENT PRIMARY KEY,
-    `customer_id` INT,
-    `executor_id` INT,
-    `task_id`     INT,
-    `grade`       INT,
-    `text`        TEXT,
+    `id`            INT AUTO_INCREMENT PRIMARY KEY,
+    `creation_date` TIMESTAMP,
+    `customer_id`   INT,
+    `executor_id`   INT,
+    `task_id`       INT,
+    `grade`         INT,
+    `text`          TEXT,
     FOREIGN KEY (`customer_id`) REFERENCES `user` (`id`),
     FOREIGN KEY (`executor_id`) REFERENCES `user` (`id`),
     FOREIGN KEY (`task_id`) REFERENCES `task` (`id`)

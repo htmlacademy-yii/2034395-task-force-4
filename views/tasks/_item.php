@@ -12,21 +12,21 @@ use yii\helpers\Html;
 
 <div class="task-card">
     <div class="header-task">
-        <?= Html::a(htmlspecialchars($task->title), ['tasks/view', 'id' => $task->id], ['class' => 'link link--block link--big']) ?>
-        <p class="price price--task"><?= htmlspecialchars($task->budget) ?> ₽</p>
+        <?= Html::a(Html::encode($task->title), ['tasks/view', 'id' => $task->id], ['class' => 'link link--block link--big']) ?>
+        <p class="price price--task"><?= Html::encode($task->budget) ?> ₽</p>
     </div>
     <p class="info-text">
         <span class="current-time"><?= MainHelpers::normalizeDate($task->creation_date) ?> </span>назад
     </p>
     <p class="task-text">
-        <?= htmlspecialchars($task->details) ?>
+        <?= Html::encode($task->details) ?>
     </p>
     <div class="footer-task">
         <p class="info-text town-text">
-            <?= htmlspecialchars($task->city->name) ?>
+            <?= Html::encode($task->city->name) ?>
         </p>
         <p class="info-text category-text">
-            <?= htmlspecialchars($task->category->name) ?>
+            <?= Html::encode($task->category->name) ?>
         </p>
         <?= Html::a('Смотреть Задание', ['tasks/view', 'id' => $task->id], ['class' => 'button button--black']) ?>
     </div>

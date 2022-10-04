@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
@@ -48,9 +49,16 @@ class TasksController extends Controller
         return $this->render('create');
     }
 
+    /**
+     * @throws NotFoundHttpException
+     */
     public function actionView(int $id): string
     {
         $task = Task::findOne($id);
+
+        if (!$task) {
+            throw new NotFoundHttpException();
+        }
 
         return $this->render('view', ['task' => $task]);
     }

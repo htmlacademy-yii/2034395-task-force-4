@@ -12,6 +12,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property string|null $creation_date
  * @property string|null $text
+ * @property int|null $price
  * @property int|null $executor_id
  * @property int|null $task_id
  *
@@ -36,7 +37,7 @@ class Response extends ActiveRecord
         return [
             [['creation_date'], 'safe'],
             [['text'], 'string'],
-            [['executor_id', 'task_id'], 'integer'],
+            [['price', 'executor_id', 'task_id'], 'integer'],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
         ];
@@ -48,8 +49,12 @@ class Response extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
+            'id' => 'ID',
             'creation_date' => 'Дата создания',
             'text' => 'Текст отклика',
+            'executor_id' => 'Исполнитель',
+            'task_id' => 'Задание',
+            'price' => 'Цена',
         ];
     }
 

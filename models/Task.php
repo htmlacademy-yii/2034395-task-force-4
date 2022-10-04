@@ -18,6 +18,7 @@ use yii\db\ActiveRecord;
  * @property int|null $customer_id
  * @property int|null $executor_id
  * @property int|null $city_id
+ * @property string|null $location
  * @property int|null $budget
  * @property string|null $execution_date
  *
@@ -28,6 +29,7 @@ use yii\db\ActiveRecord;
  * @property Response[] $responses
  * @property Review[] $reviews
  * @property TaskFile[] $taskFiles
+ * @property string $statusLabel
  */
 class Task extends ActiveRecord
 {
@@ -36,6 +38,14 @@ class Task extends ActiveRecord
     const STATUS_IN_WORK = 'in work';
     const STATUS_PERFORMED = 'performed';
     const STATUS_FAILED = 'failed';
+
+    const STATUS_MAP = [
+        self::STATUS_NEW => 'Новое',
+        self::STATUS_CANCELED => 'Отменено',
+        self::STATUS_IN_WORK => 'В работе',
+        self::STATUS_PERFORMED => 'Выполнено',
+        self::STATUS_FAILED => 'Провалено',
+    ];
 
     /**
      * {@inheritdoc}
@@ -67,10 +77,16 @@ class Task extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
+            'id' => 'Статус',
             'status' => 'Статус',
             'creation_date' => 'Дата создания',
             'title' => 'Название',
             'details' => 'Описание',
+            'category_id' => 'Категория',
+            'customer_id' => 'Заказчик',
+            'executor_id' => 'Исполнитель',
+            'city_id' => 'Город',
+            'location' => 'Улица',
             'budget' => 'Бюджет',
             'execution_date' => 'Дата сдачи',
         ];
@@ -144,5 +160,15 @@ class Task extends ActiveRecord
     public function getTaskFiles(): ActiveQuery
     {
         return $this->hasMany(TaskFile::class, ['task_id' => 'id']);
+    }
+
+    /**
+     * Gets string for [[StatusLabel]].
+     *
+     * @return string
+     */
+    public function getStatusLabel(): string
+    {
+        return self::STATUS_MAP[$this->status];
     }
 }

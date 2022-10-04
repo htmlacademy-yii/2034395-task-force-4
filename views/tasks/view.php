@@ -9,16 +9,16 @@ use app\models\Task;
 use yii\helpers\Html;
 use app\helpers\MainHelpers;
 
-$this->title = "Task Force | $task->title ($task->budget ₽)";
+$this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 ?>
 
 <main class="main-content container">
     <div class="left-column">
         <div class="head-wrapper">
-            <h3 class="head-main"><?= htmlspecialchars($task->title) ?></h3>
-            <p class="price price--big"><?= htmlspecialchars($task->budget) ?> ₽</p>
+            <h3 class="head-main"><?= Html::encode($task->title) ?></h3>
+            <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
         </div>
-        <p class="task-description"><?= htmlspecialchars($task->details) ?></p>
+        <p class="task-description"><?= Html::encode($task->details) ?></p>
         <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
         <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
         <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
@@ -36,7 +36,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
             )
             ?>
             <p class="map-address town"><?= $task->city->name ?></p>
-            <p class="map-address">-</p>
+            <p class="map-address"><?= $task->location ?></p>
         </div>
         <?php if (count($task->responses) > 0): ?>
             <h4 class="head-regular">Отклики на задание</h4>
@@ -56,31 +56,37 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                 )
                 ?>
                 <div class="feedback-wrapper">
-                    <a href="#" class="link link--block link--big">
-                        <?= htmlspecialchars($response->executor->username) ?>
-                    </a>
+                    <?=
+                    Html::a
+                    (
+                        Html::encode($response->executor->username),
+                        ['profile/view', 'id' => $response->executor_id],
+                        ['class' => 'link link--block link--big']
+                    );
+                    ?>
                     <div class="response-wrapper">
                         <div class="stars-rating small">
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span>&nbsp;</span>
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <?php if ($i <= $response->executor->executorRating): ?>
+                                    <span class="fill-star">&nbsp;</span>
+                                <?php else: ?>
+                                    <span>&nbsp;</span>
+                                <?php endif; ?>
+                            <?php endfor; ?>
                         </div>
                         <p class="reviews">
-                            <?php $reviewsCount = count($response->executor->reviews) ?>
+                            <?php $reviewsCount = count($response->executor->executorReviews) ?>
                             <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
                         </p>
                     </div>
                     <p class="response-message">
-                        <?= htmlspecialchars($response->text) ?>
+                        <?= Html::encode($response->text) ?>
                     </p>
-
                 </div>
                 <div class="feedback-wrapper">
                     <p class="info-text"><span
                                 class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
-                    <p class="price price--small">3700 ₽</p>
+                    <p class="price price--small"><?= Html::encode($response->price) ?> ₽</p>
                 </div>
                 <div class="button-popup">
                     <a href="#" class="button button--blue button--small">Принять</a>
@@ -100,7 +106,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                 <dt>Срок выполнения</dt>
                 <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
                 <dt>Статус</dt>
-                <dd>Открыт для новых заказов</dd>
+                <dd><?= $task->statusLabel ?></dd>
             </dl>
         </div>
         <?php if (count($task->taskFiles) > 0): ?>
