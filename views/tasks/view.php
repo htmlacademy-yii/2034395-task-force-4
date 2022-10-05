@@ -22,77 +22,29 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
         <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
         <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
         <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
-        <div class="task-map">
-            <?=
-            Html::img
-            (
-                '@web/img/map.png',
-                [
-                    'class' => 'map',
-                    'width' => 725,
-                    'height' => 346,
-                    'alt' => $task->city->name
-                ]
-            )
-            ?>
-            <p class="map-address town"><?= $task->city->name ?></p>
-            <p class="map-address"><?= $task->location ?></p>
-        </div>
+        <?php if ($task->city_id && $task->location): ?>
+            <div class="task-map">
+                <?=
+                Html::img
+                (
+                    '@web/img/map.png',
+                    [
+                        'class' => 'map',
+                        'width' => 725,
+                        'height' => 346,
+                        'alt' => $task->city->name
+                    ]
+                )
+                ?>
+                <p class="map-address town"><?= $task->city->name ?></p>
+                <p class="map-address"><?= $task->location ?></p>
+            </div>
+        <?php endif; ?>
         <?php if (count($task->responses) > 0): ?>
             <h4 class="head-regular">Отклики на задание</h4>
         <?php endif; ?>
         <?php foreach ($task->responses as $response): ?>
-            <div class="response-card">
-                <?=
-                Html::img
-                (
-                    $response->executor->avatar_url,
-                    [
-                        'class' => 'customer-photo',
-                        'width' => 146,
-                        'height' => 156,
-                        'alt' => "Фото заказчика"
-                    ]
-                )
-                ?>
-                <div class="feedback-wrapper">
-                    <?=
-                    Html::a
-                    (
-                        Html::encode($response->executor->username),
-                        ['profile/view', 'id' => $response->executor_id],
-                        ['class' => 'link link--block link--big']
-                    );
-                    ?>
-                    <div class="response-wrapper">
-                        <div class="stars-rating small">
-                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <?php if ($i <= $response->executor->executorRating): ?>
-                                    <span class="fill-star">&nbsp;</span>
-                                <?php else: ?>
-                                    <span>&nbsp;</span>
-                                <?php endif; ?>
-                            <?php endfor; ?>
-                        </div>
-                        <p class="reviews">
-                            <?php $reviewsCount = count($response->executor->executorReviews) ?>
-                            <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
-                        </p>
-                    </div>
-                    <p class="response-message">
-                        <?= Html::encode($response->text) ?>
-                    </p>
-                </div>
-                <div class="feedback-wrapper">
-                    <p class="info-text"><span
-                                class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
-                    <p class="price price--small"><?= Html::encode($response->price) ?> ₽</p>
-                </div>
-                <div class="button-popup">
-                    <a href="#" class="button button--blue button--small">Принять</a>
-                    <a href="#" class="button button--orange button--small">Отказать</a>
-                </div>
-            </div>
+            <?= $this->render('_response', ['response' => $response]) ?>
         <?php endforeach; ?>
     </div>
     <div class="right-column">

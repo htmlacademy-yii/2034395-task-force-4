@@ -71,40 +71,7 @@ $this->title = Html::encode("Task Force | $user->username");
         <?php if ($user->executorReviews): ?>
             <h4 class="head-regular">Отзывы заказчиков</h4>
             <?php foreach ($user->executorReviews as $executorReview): ?>
-                <div class="response-card">
-                    <?= Html::img($executorReview->customer->avatar_url, [
-                        'class' => 'customer-photo',
-                        'width' => 120,
-                        'height' => 127,
-                        'alt' => 'Фото заказчиков'
-                    ]) ?>
-                    <div class="feedback-wrapper">
-                        <?= Html::tag('p', Html::encode($executorReview->text), ['class' => 'feedback']) ?>
-                        <?= Html::tag(
-                            'p',
-                            "Задание «" . Html::a(
-                                Html::encode($executorReview->task->title),
-                                ['tasks/view', 'id' => $executorReview->task->id],
-                                ['class' => 'link link--small']
-                            ) . "» выполнено",
-                            ['class' => 'task']
-                        ) ?>
-                    </div>
-                    <div class="feedback-wrapper">
-                        <div class="stars-rating small">
-                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                <?php if ($i <= $executorReview->grade): ?>
-                                    <span class="fill-star">&nbsp;</span>
-                                <?php else: ?>
-                                    <span>&nbsp;</span>
-                                <?php endif; ?>
-                            <?php endfor; ?>
-                        </div>
-                        <p class="info-text">
-                            <span class="current-time"><?= MainHelpers::normalizeDate($executorReview->creation_date) ?> </span>назад
-                        </p>
-                    </div>
-                </div>
+                <?= $this->render('_review', ['review' => $executorReview]) ?>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use DateTime;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -13,7 +14,6 @@ use yii\db\ActiveRecord;
  * @property string|null $status
  * @property string|null $email
  * @property string|null $username
- * @property int|null $age
  * @property string|null $password
  * @property int|null $city_id
  * @property int|null $is_executor
@@ -36,6 +36,7 @@ use yii\db\ActiveRecord;
  * @property string $statusLabel
  * @property Task[] $performedTasks
  * @property Task[] $failedTasks
+ * @property int $age
  */
 class User extends ActiveRecord
 {
@@ -239,5 +240,21 @@ class User extends ActiveRecord
     public function getFailedTasks(): array
     {
         return Task::findAll(['executor_id' => $this->id, 'status' => Task::STATUS_FAILED]);
+    }
+
+    /**
+     * Gets int for [[Age]]
+     *
+     * @return int
+     * @throws \Exception
+     */
+    public function getAge(): int
+    {
+        $now = new DateTime();
+        $birthday = new DateTime($this->birthday);
+
+        $interval = $now->diff($birthday);
+
+        return (int) $interval->format('%Y');
     }
 }
