@@ -24,7 +24,7 @@ $this->title = 'Task Force | New Tasks';
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
         <?php foreach ($tasks as $task): ?>
-            <?= $this->render('_item.php', ['task' => $task]) ?>
+            <?= $this->render('_task.php', ['task' => $task]) ?>
         <?php endforeach; ?>
         <div class="pagination-wrapper">
             <ul class="pagination-list">

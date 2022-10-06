@@ -9,84 +9,42 @@ use app\models\Task;
 use yii\helpers\Html;
 use app\helpers\MainHelpers;
 
-$this->title = "Task Force | $task->title ($task->budget ₽)";
+$this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 ?>
 
 <main class="main-content container">
     <div class="left-column">
         <div class="head-wrapper">
-            <h3 class="head-main"><?= htmlspecialchars($task->title) ?></h3>
-            <p class="price price--big"><?= htmlspecialchars($task->budget) ?> ₽</p>
+            <h3 class="head-main"><?= Html::encode($task->title) ?></h3>
+            <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
         </div>
-        <p class="task-description"><?= htmlspecialchars($task->details) ?></p>
+        <p class="task-description"><?= Html::encode($task->details) ?></p>
         <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
         <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
         <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
-        <div class="task-map">
-            <?=
-            Html::img
-            (
-                '@web/img/map.png',
-                [
-                    'class' => 'map',
-                    'width' => 725,
-                    'height' => 346,
-                    'alt' => $task->city->name
-                ]
-            )
-            ?>
-            <p class="map-address town"><?= $task->city->name ?></p>
-            <p class="map-address">-</p>
-        </div>
+        <?php if ($task->city_id && $task->location): ?>
+            <div class="task-map">
+                <?=
+                Html::img
+                (
+                    '@web/img/map.png',
+                    [
+                        'class' => 'map',
+                        'width' => 725,
+                        'height' => 346,
+                        'alt' => $task->city->name
+                    ]
+                )
+                ?>
+                <p class="map-address town"><?= $task->city->name ?></p>
+                <p class="map-address"><?= $task->location ?></p>
+            </div>
+        <?php endif; ?>
         <?php if (count($task->responses) > 0): ?>
             <h4 class="head-regular">Отклики на задание</h4>
         <?php endif; ?>
         <?php foreach ($task->responses as $response): ?>
-            <div class="response-card">
-                <?=
-                Html::img
-                (
-                    $response->executor->avatar_url,
-                    [
-                        'class' => 'customer-photo',
-                        'width' => 146,
-                        'height' => 156,
-                        'alt' => "Фото заказчика"
-                    ]
-                )
-                ?>
-                <div class="feedback-wrapper">
-                    <a href="#" class="link link--block link--big">
-                        <?= htmlspecialchars($response->executor->username) ?>
-                    </a>
-                    <div class="response-wrapper">
-                        <div class="stars-rating small">
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span class="fill-star">&nbsp;</span>
-                            <span>&nbsp;</span>
-                        </div>
-                        <p class="reviews">
-                            <?php $reviewsCount = count($response->executor->reviews) ?>
-                            <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
-                        </p>
-                    </div>
-                    <p class="response-message">
-                        <?= htmlspecialchars($response->text) ?>
-                    </p>
-
-                </div>
-                <div class="feedback-wrapper">
-                    <p class="info-text"><span
-                                class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
-                    <p class="price price--small">3700 ₽</p>
-                </div>
-                <div class="button-popup">
-                    <a href="#" class="button button--blue button--small">Принять</a>
-                    <a href="#" class="button button--orange button--small">Отказать</a>
-                </div>
-            </div>
+            <?= $this->render('_response', ['response' => $response]) ?>
         <?php endforeach; ?>
     </div>
     <div class="right-column">
@@ -100,7 +58,7 @@ $this->title = "Task Force | $task->title ($task->budget ₽)";
                 <dt>Срок выполнения</dt>
                 <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
                 <dt>Статус</dt>
-                <dd>Открыт для новых заказов</dd>
+                <dd><?= $task->statusLabel ?></dd>
             </dl>
         </div>
         <?php if (count($task->taskFiles) > 0): ?>

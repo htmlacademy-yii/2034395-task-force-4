@@ -15,6 +15,7 @@ use yii\db\ActiveRecord;
  * @property int|null $task_id
  * @property int|null $grade
  * @property string|null $text
+ * @property string|null $creation_date
  *
  * @property User $customer
  * @property User $executor
@@ -37,7 +38,7 @@ class Review extends ActiveRecord
     {
         return [
             [['customer_id', 'executor_id', 'task_id', 'grade'], 'integer'],
-            [['text'], 'string'],
+            [['text', 'creation_date'], 'string'],
             [['customer_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['customer_id' => 'id']],
             [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
             [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
@@ -50,8 +51,13 @@ class Review extends ActiveRecord
     public function attributeLabels(): array
     {
         return [
+            'id' => 'ID',
+            'customer_id' => 'Заказчик',
+            'executor_id' => 'Исполнитель',
+            'task_id' => 'Задание',
             'grade' => 'Оценка',
             'text' => 'Текст отзыва',
+            'creation_date' => 'Дата создания',
         ];
     }
 
