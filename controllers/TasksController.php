@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use app\models\Task;
@@ -16,12 +17,29 @@ class TasksController extends Controller
         'executor_id = null' => 'Без исполнителя'
     ];
 
+    public function init(): void
+    {
+        parent::init();
+        Yii::$app->user->loginUrl = ['auth/index'];
+    }
+
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
+                ]
+            ]
+        ];
+    }
+
     public function actionIndex(): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $tasks = Task::find()
             ->where(['status' => Task::STATUS_NEW])
             ->limit(5)
@@ -46,19 +64,11 @@ class TasksController extends Controller
 
     public function actionOwner(): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         return $this->render('owner');
     }
 
     public function actionCreate(): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         return $this->render('create');
     }
 
@@ -67,10 +77,6 @@ class TasksController extends Controller
      */
     public function actionView(int $id): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $task = Task::findOne($id);
 
         if (!$task) {

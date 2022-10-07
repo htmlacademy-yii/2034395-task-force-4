@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\Response;
@@ -11,12 +12,29 @@ use app\models\User;
 
 class ProfileController extends Controller
 {
+    public function init(): void
+    {
+        parent::init();
+        Yii::$app->user->loginUrl = ['auth/index'];
+    }
+
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
+                ]
+            ]
+        ];
+    }
+
     public function actionIndex(): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         return $this->render('index');
     }
 
@@ -25,10 +43,6 @@ class ProfileController extends Controller
      */
     public function actionView(int $id): Response|string
     {
-        if (Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $user = User::findOne($id);
 
         if (!$user) {
