@@ -8,6 +8,7 @@ use yii\web\NotFoundHttpException;
 use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
+use yii\web\Response;
 
 class TasksController extends Controller
 {
@@ -15,8 +16,12 @@ class TasksController extends Controller
         'executor_id = null' => 'Без исполнителя'
     ];
 
-    public function actionIndex(): string
+    public function actionIndex(): Response|string
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
         $tasks = Task::find()
             ->where(['status' => Task::STATUS_NEW])
             ->limit(5)
@@ -39,21 +44,33 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionOwner(): string
+    public function actionOwner(): Response|string
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
         return $this->render('owner');
     }
 
-    public function actionCreate(): string
+    public function actionCreate(): Response|string
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
         return $this->render('create');
     }
 
     /**
      * @throws NotFoundHttpException
      */
-    public function actionView(int $id): string
+    public function actionView(int $id): Response|string
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
         $task = Task::findOne($id);
 
         if (!$task) {

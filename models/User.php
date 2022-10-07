@@ -6,6 +6,7 @@ use DateTime;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "user".
@@ -23,6 +24,8 @@ use yii\db\ActiveRecord;
  * @property string|null $telegram
  * @property string|null $details
  * @property string|null $registration_date
+ * @property string|null $auth_key
+ * @property string|null $access_token
  *
  * @property City $city
  * @property Response[] $responses
@@ -38,8 +41,11 @@ use yii\db\ActiveRecord;
  * @property Task[] $failedTasks
  * @property int $age
  */
-class User extends ActiveRecord
+class User extends ActiveRecord implements IdentityInterface
 {
+    const SCENARIO_LOGIN = 'login';
+    const SCENARIO_REGISTRATION = 'registration';
+
     const STATUS_FREE = 'free';
     const STATUS_BUSY = 'busy';
 
@@ -47,6 +53,8 @@ class User extends ActiveRecord
         self::STATUS_FREE => 'Открыт для новых заказов',
         self::STATUS_BUSY => 'Занят'
     ];
+
+    public ?string $password_repeat;
 
     /**
      * {@inheritdoc}
@@ -64,14 +72,40 @@ class User extends ActiveRecord
         return [
             [['city_id', 'is_executor', 'age'], 'integer'],
             [['birthday', 'registration_date'], 'safe'],
-            [['details'], 'string'],
-            [['email'], 'string', 'max' => 320],
-            [['username', 'telegram'], 'string', 'max' => 128],
-            [['password'], 'string', 'max' => 64],
-            [['avatar_url'], 'string', 'max' => 2048],
-            [['status, phone_number'], 'string', 'max' => 32],
+            [['details', 'auth_key', 'access_token'], 'string'],
+            [['email'], 'email'],
             [['email'], 'unique'],
-            [['city_id'], 'exist', 'skipOnError' => true, 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
+            [
+                [
+                    'username',
+                    'telegram',
+                    'password',
+                    'password_repeat',
+                    'avatar_url',
+                    'status',
+                    'phone_number'
+                ],
+                'string',
+                'max' => 255
+            ],
+            [
+                ['city_id'],
+                'exist',
+                'targetClass' => City::class,
+                'targetAttribute' => ['city_id' => 'id']
+            ],
+            [
+                ['password_repeat'],
+                'compare',
+                'compareAttribute' => 'password',
+                'on' => self::SCENARIO_REGISTRATION
+            ],
+            [['email', 'password'], 'required', 'on' => self::SCENARIO_LOGIN],
+            [
+                ['username', 'email', 'city_id', 'password', 'password_repeat', 'is_executor'],
+                'required',
+                'on' => self::SCENARIO_REGISTRATION
+            ]
         ];
     }
 
@@ -87,6 +121,7 @@ class User extends ActiveRecord
             'username' => 'Имя пользователя',
             'age' => 'Возраст',
             'password' => 'Пароль',
+            'password_repeat' => 'Повтор пароля',
             'city_id' => 'Город',
             'is_executor' => 'Is Executor',
             'avatar_url' => 'Avatar URL',
@@ -95,7 +130,34 @@ class User extends ActiveRecord
             'telegram' => 'Telegram',
             'details' => 'Описание',
             'registration_date' => 'Дата регистрации',
+            'auth_key' => 'Auth Key',
+            'access_token' => 'Access Token',
         ];
+    }
+
+    public static function findIdentity($id): User|null
+    {
+        return self::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null): User|null
+    {
+        return self::findOne(['access_token' => $token]);
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey(): string
+    {
+        return $this->auth_key;
+    }
+
+    public function validateAuthKey($authKey): bool
+    {
+        return $this->auth_key === $authKey;
     }
 
     /**
@@ -178,14 +240,14 @@ class User extends ActiveRecord
         $grades = [];
 
         foreach ($this->executorReviews as $review) {
-            $grades[] = (float) $review->grade;
+            $grades[] = (float)$review->grade;
         }
 
         if (count($grades) === 0) {
             return 0;
         }
 
-        $result = array_sum($grades) / (float) count($grades);
+        $result = array_sum($grades) / (float)count($grades);
 
         return round($result, 2);
     }
@@ -200,14 +262,14 @@ class User extends ActiveRecord
         $grades = [];
 
         foreach ($this->customerReviews as $review) {
-            $grades[] = (float) $review->grade;
+            $grades[] = (float)$review->grade;
         }
 
         if (count($grades) === 0) {
             return 0;
         }
 
-        $result = array_sum($grades) / (float) count($grades);
+        $result = array_sum($grades) / (float)count($grades);
 
         return round($result, 2);
     }
@@ -255,6 +317,6 @@ class User extends ActiveRecord
 
         $interval = $now->diff($birthday);
 
-        return (int) $interval->format('%Y');
+        return (int)$interval->format('%Y');
     }
 }
