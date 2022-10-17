@@ -1,12 +1,17 @@
 <?php
 
-/** @var yii\web\View $this */
-/** @var string $content */
+/**
+ * @var yii\web\View $this
+ * @var string $content
+ */
 
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\models\User;
+
+$user = User::findOne(Yii::$app->user->id);
 
 AppAsset::register($this);
 
@@ -47,62 +52,68 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
         );
         ?>
 
-        <div class="nav-wrapper">
-            <?php
-            $itemClass = 'list-item';
-            $activeItemClass = 'list-item list-item--active';
+        <?php if ($user): ?>
+            <div class="nav-wrapper">
+                <?php
+                $itemClass = 'list-item';
+                $activeItemClass = 'list-item list-item--active';
 
-            $items = [
-                ['label' => 'Новое', 'url' => ['tasks/index']],
-                ['label' => 'Мои задания', 'url' => ['tasks/owner']],
-                ['label' => 'Создать задание', 'url' => ['tasks/create']],
-                ['label' => 'Настройки', 'url' => ['settings/index']],
-            ];
-            ?>
+                $items = [
+                    ['label' => 'Новое', 'url' => ['tasks/index']],
+                    ['label' => 'Мои задания', 'url' => ['tasks/owner']],
+                    ['label' => 'Создать задание', 'url' => ['tasks/create']],
+                    ['label' => 'Настройки', 'url' => ['settings/index']],
+                ];
+                ?>
 
-            <ul class="nav-list">
-                <?php foreach ($items as $item): ?>
-                    <li class="<?= Yii::$app->requestedRoute === $item['url'][0] ? $activeItemClass : $itemClass ?>">
-                        <?= Html::a($item['label'], Url::to($item['url']), ['class' => 'link link--nav']); ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    </nav>
-    <div class="user-block">
-        <?=
-        Html::a
-        (
-            Html::img
-            (
-                '@web/img/man-glasses.png',
-                [
-                    'class' => 'logo-photo',
-                    'width' => 55,
-                    'height' => 55,
-                    'alt' => 'Аватар'
-                ]
-            ),
-            Url::to(['profile/index'])
-        );
-        ?>
-        <div class="user-menu">
-            <p class="user-name">Василий</p>
-            <div class="popup-head">
-                <ul class="popup-menu">
-                    <li class="menu-item">
-                        <?= Html::a('Настройки', ['settings/index'], ['class' => 'link']) ?>
-                    </li>
-                    <li class="menu-item">
-                        <?= Html::a('Связаться с нами', ['site/contact'], ['class' => 'link']) ?>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#" class="link">Выход из системы</a>
-                    </li>
+                <ul class="nav-list">
+                    <?php foreach ($items as $item): ?>
+                        <li class="<?= Yii::$app->requestedRoute === $item['url'][0] ? $activeItemClass : $itemClass ?>">
+                            <?= Html::a($item['label'], Url::to($item['url']), ['class' => 'link link--nav']); ?>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
+        <?php endif; ?>
+    </nav>
+    <?php if ($user): ?>
+        <div class="user-block">
+            <?=
+            Html::a
+            (
+                Html::img
+                (
+                    $user->avatar_url,
+                    [
+                        'class' => 'logo-photo',
+                        'width' => 55,
+                        'height' => 55,
+                        'alt' => 'Аватар'
+                    ]
+                ),
+                Url::to(['profile/index'])
+            );
+            ?>
+            <div class="user-menu">
+                <p class="user-name">
+                    <?= Html::encode($user->username) ?>
+                </p>
+                <div class="popup-head">
+                    <ul class="popup-menu">
+                        <li class="menu-item">
+                            <?= Html::a('Настройки', ['settings/index'], ['class' => 'link']) ?>
+                        </li>
+                        <li class="menu-item">
+                            <?= Html::a('Связаться с нами', ['site/contact'], ['class' => 'link']) ?>
+                        </li>
+                        <li class="menu-item">
+                            <?= Html::a('Выход из системы', ['auth/logout'], ['class' => 'link']) ?>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
 </header>
 
 <?= Alert::widget() ?>

@@ -3,11 +3,13 @@
 namespace app\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
+use yii\web\Response;
 
 class TasksController extends Controller
 {
@@ -15,7 +17,28 @@ class TasksController extends Controller
         'executor_id = null' => 'Без исполнителя'
     ];
 
-    public function actionIndex(): string
+    public function init(): void
+    {
+        parent::init();
+        Yii::$app->user->loginUrl = ['auth/index'];
+    }
+
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
+                ]
+            ]
+        ];
+    }
+
+    public function actionIndex(): Response|string
     {
         $tasks = Task::find()
             ->where(['status' => Task::STATUS_NEW])
@@ -39,12 +62,12 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionOwner(): string
+    public function actionOwner(): Response|string
     {
         return $this->render('owner');
     }
 
-    public function actionCreate(): string
+    public function actionCreate(): Response|string
     {
         return $this->render('create');
     }
@@ -52,7 +75,7 @@ class TasksController extends Controller
     /**
      * @throws NotFoundHttpException
      */
-    public function actionView(int $id): string
+    public function actionView(int $id): Response|string
     {
         $task = Task::findOne($id);
 
