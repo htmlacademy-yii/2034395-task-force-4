@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
+use app\models\RegistrationForm;
 use app\models\User;
 use app\models\City;
 use yii\helpers\Url;
@@ -17,7 +18,19 @@ class AuthController extends Controller
             return $this->redirect(Url::to(['tasks/index']));
         }
 
-        return $this->render('index');
+        $model = new User();
+
+        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->validate()) {
+            $user = User::findOne(['email' => $model->email]);
+
+            if (Yii::$app->security->validatePassword($model->password, $user->password)) {
+                Yii::$app->user->login($user);
+
+                return $this->redirect(Url::to(['tasks/index']));
+            }
+        }
+
+        return $this->render('index', ['model' => $model]);
     }
 
     public function actionRegistration(): Response|string
@@ -28,31 +41,18 @@ class AuthController extends Controller
 
         $cities = City::find()->all();
 
-        $user = new User();
+        $model = new RegistrationForm();
 
-        $user->scenario = User::SCENARIO_REGISTRATION;
-
-        if ($this->request->getIsPost()) {
-            if ($user->load($this->request->post()) && $user->validate()) {
-                $user->auth_key = Yii::$app->security->generateRandomString();
-                $user->access_token = Yii::$app->security->generateRandomString();
-                $user->password = Yii::$app->security->generatePasswordHash($user->password);
-                $user->registration_date = date('Y-m-d H:i:s', time());
-
-                $user->save(false);
-
-                Yii::$app->user->login($user);
-
-                return $this->redirect(Url::to(['tasks/index']));
-            }
+        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->register()) {
+            return $this->redirect(Url::to(['tasks/index']));
         }
 
 
-        $user->password = null;
-        $user->password_repeat = null;
+        $model->password = null;
+        $model->password_repeat = null;
 
         return $this->render('registration', [
-            'user' => $user,
+            'model' => $model,
             'cities' => $cities
         ]);
     }

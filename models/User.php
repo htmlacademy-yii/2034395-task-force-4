@@ -3,7 +3,6 @@
 namespace app\models;
 
 use DateTime;
-use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -43,9 +42,6 @@ use yii\web\IdentityInterface;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    const SCENARIO_LOGIN = 'login';
-    const SCENARIO_REGISTRATION = 'registration';
-
     const STATUS_FREE = 'free';
     const STATUS_BUSY = 'busy';
 
@@ -53,8 +49,6 @@ class User extends ActiveRecord implements IdentityInterface
         self::STATUS_FREE => 'Открыт для новых заказов',
         self::STATUS_BUSY => 'Занят'
     ];
-
-    public ?string $password_repeat;
 
     /**
      * {@inheritdoc}
@@ -80,7 +74,6 @@ class User extends ActiveRecord implements IdentityInterface
                     'username',
                     'telegram',
                     'password',
-                    'password_repeat',
                     'avatar_url',
                     'status',
                     'phone_number'
@@ -93,18 +86,6 @@ class User extends ActiveRecord implements IdentityInterface
                 'exist',
                 'targetClass' => City::class,
                 'targetAttribute' => ['city_id' => 'id']
-            ],
-            [
-                ['password_repeat'],
-                'compare',
-                'compareAttribute' => 'password',
-                'on' => self::SCENARIO_REGISTRATION
-            ],
-            [['email', 'password'], 'required', 'on' => self::SCENARIO_LOGIN],
-            [
-                ['username', 'email', 'city_id', 'password', 'password_repeat', 'is_executor'],
-                'required',
-                'on' => self::SCENARIO_REGISTRATION
             ]
         ];
     }
@@ -121,7 +102,6 @@ class User extends ActiveRecord implements IdentityInterface
             'username' => 'Имя пользователя',
             'age' => 'Возраст',
             'password' => 'Пароль',
-            'password_repeat' => 'Повтор пароля',
             'city_id' => 'Город',
             'is_executor' => 'Is Executor',
             'avatar_url' => 'Avatar URL',
