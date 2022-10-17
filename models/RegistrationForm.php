@@ -23,19 +23,10 @@ class RegistrationForm extends Model
             [['username', 'email', 'city_id', 'password', 'password_repeat', 'is_executor'], 'required'],
             [['username', 'password', 'password_repeat'], 'string', 'max' => 255],
             ['email', 'email'],
-            ['email', 'unique'],
+            ['email', 'unique', 'targetClass' => User::class, 'targetAttribute' => 'email'],
             ['is_executor', 'boolean'],
-            [
-                'city_id',
-                'exist',
-                'targetClass' => City::class,
-                'targetAttribute' => ['city_id' => 'id']
-            ],
-            [
-                'password_repeat',
-                'compare',
-                'compareAttribute' => 'password'
-            ],
+            ['city_id', 'exist', 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
+            ['password_repeat', 'compare', 'compareAttribute' => 'password'],
         ];
     }
 
@@ -56,6 +47,10 @@ class RegistrationForm extends Model
 
     public function register(): bool
     {
+        if (!$this->validate()) {
+            return false;
+        }
+
         $user = new User();
 
         $user->username = $this->username;
@@ -68,7 +63,7 @@ class RegistrationForm extends Model
         $user->auth_key = Yii::$app->security->generateRandomString();
         $user->access_token = Yii::$app->security->generateRandomString();
 
-        if ($user->save()) {
+        if ($user->save(false)) {
             return Yii::$app->user->login($user);
         }
 
