@@ -19,7 +19,6 @@ class LoginForm extends Model
             [['email', 'password'], 'required'],
             ['password', 'string', 'max' => 255],
             ['email', 'email'],
-            ['email', 'exist', 'targetClass' => User::class, 'targetAttribute' => 'email'],
             ['password', 'validatePassword'],
         ];
     }
@@ -39,12 +38,17 @@ class LoginForm extends Model
     {
         $user = User::findOne(['email' => $this->email]);
 
-        if ($user->validatePassword($this->password)) {
-            return true;
+        if (!$user) {
+            $this->addError('password', 'Неверный пароль.');
+            return false;
         }
 
-        $this->addError('password', 'Неверный пароль.');
-        return false;
+        if (!$user->validatePassword($this->password)) {
+            $this->addError('password', 'Неверный пароль.');
+            return false;
+        }
+
+        return true;
     }
 
     public function login(): bool
