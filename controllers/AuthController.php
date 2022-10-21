@@ -5,56 +5,38 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use yii\web\Response;
-use app\models\RegistrationForm;
-use app\models\User;
-use app\models\City;
+use app\models\LoginForm;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+
+/**
+ * @var $this Yii
+ */
 
 class AuthController extends Controller
 {
-    public function actionIndex(): Response|string
+    public function actionIndex(): Response|string|array
     {
         if (!Yii::$app->user->isGuest) {
             return $this->redirect(Url::to(['tasks/index']));
         }
 
-        $model = new User();
+        $model = new LoginForm();
 
-        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->validate()) {
-            $user = User::findOne(['email' => $model->email]);
+        if ($this->request->isAjax && $model->load($this->request->post())) {
+            $this->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
 
-            if (Yii::$app->security->validatePassword($model->password, $user->password)) {
-                Yii::$app->user->login($user);
-
+        if ($this->request->getIsPost() && $model->load($this->request->post())) {
+            if ($model->login()) {
                 return $this->redirect(Url::to(['tasks/index']));
             }
         }
 
-        return $this->render('index', ['model' => $model]);
-    }
-
-    public function actionRegistration(): Response|string
-    {
-        if (!Yii::$app->user->isGuest) {
-            return $this->redirect(Url::to(['tasks/index']));
-        }
-
-        $cities = City::find()->all();
-
-        $model = new RegistrationForm();
-
-        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->register()) {
-            return $this->redirect(Url::to(['tasks/index']));
-        }
-
-
         $model->password = null;
-        $model->password_repeat = null;
 
-        return $this->render('registration', [
-            'model' => $model,
-            'cities' => $cities
-        ]);
+        return $this->render('index', ['model' => $model]);
     }
 
     public function actionLogout(): Response

@@ -2,11 +2,11 @@
 
 use yii\widgets\ActiveForm;
 use yii\helpers\Html;
-use app\models\User;
+use app\models\LoginForm;
 
 /**
  * @var yii\web\View $this
- * @var User $model
+ * @var LoginForm $model
  */
 
 Yii::$app->layout = 'landing.php';
@@ -19,19 +19,19 @@ $this->title = 'Task Force | Login';
     <?php
     $form = ActiveForm::begin([
         'fieldConfig' => [
-            'template' => '{label}{input}',
+            'template' => '{label}{error}{input}',
             'inputOptions' => ['class' => 'enter-form-email input input-middle'],
             'labelOptions' => ['class' => 'form-modal-description']
         ],
     ]);
     ?>
     <?=
-    $form->field($model, 'email')
+    $form->field($model, 'email', ['enableAjaxValidation' => true])
         ->input('email')
         ->label('Email');
     ?>
     <?=
-    $form->field($model, 'password')
+    $form->field($model, 'password', ['enableAjaxValidation' => true])
         ->passwordInput()
         ->label('Пароль');
     ?>

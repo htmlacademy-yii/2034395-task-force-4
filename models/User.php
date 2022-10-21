@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use DateTime;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -138,6 +139,11 @@ class User extends ActiveRecord implements IdentityInterface
     public function validateAuthKey($authKey): bool
     {
         return $this->auth_key === $authKey;
+    }
+
+    public function validatePassword(string $password): bool
+    {
+        return Yii::$app->security->validatePassword($password, $this->password);
     }
 
     /**

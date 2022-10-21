@@ -34,7 +34,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
     <body class="landing">
     <?php $this->beginBody() ?>
         <div class="table-layout">
-            <header class=" page-header--index">
+            <header class="page-header--index">
                 <div class="main-container page-header__container page-header__container--index">
                     <div class="page-header__logo--index">
                         <a>
@@ -72,7 +72,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                         <?=
                         Html::a(
                             'Регистрация',
-                            ['auth/registration'],
+                            ['registration/index'],
                             ['class' => 'header__account-registration']
                         )
                         ?>
@@ -87,7 +87,12 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                         <p>Сломался кран на кухне? Надо отправить документы? Нет времени самому гулять с собакой?
                             У нас вы быстро найдёте исполнителя для любой жизненной ситуации?<br>
                             Быстро, безопасно и с гарантией. Просто, как раз, два, три. </p>
-                        <button class="button">Создать аккаунт</button>
+                        <?=
+                        Html::a(
+                            Html::button('Создать аккаунт', ['class' => 'button']),
+                            ['registration/index']
+                        )
+                        ?>
                     </div>
                     <div class="landing-center">
                         <div class="landing-instruction">
@@ -207,10 +212,13 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                     </div>
                     <div class="page-footer__copyright">
                         <a href="https://htmlacademy.ru">
-                            <img class="copyright-logo"
-                                 src="../assets/img/academy-logo.png"
-                                 width="185" height="63"
-                                 alt="Логотип HTML Academy">
+                            <?=
+                            Html::img('img/academy-logo.png', [
+                                'width' => 185,
+                                'height' => 63,
+                                'alt' => 'Логотип HTML Academy'
+                            ])
+                            ?>
                         </a>
                     </div>
                 </div>
