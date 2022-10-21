@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\CreateTaskForm;
+use app\models\File;
+use app\models\TaskFile;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -10,6 +13,7 @@ use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
 use yii\web\Response;
+use yii\web\UploadedFile;
 
 class TasksController extends Controller
 {
@@ -69,7 +73,42 @@ class TasksController extends Controller
 
     public function actionCreate(): Response|string
     {
-        return $this->render('create');
+        $categories = Category::find()->all();
+
+        $model = new CreateTaskForm();
+
+        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->create()) {
+            $lastTask = Task::find()->orderBy('id DESC')->one();
+
+            foreach (UploadedFile::getInstances($model, 'files') as $file) {
+                $newFile = new File();
+                $extension = $file->getExtension();
+
+                $name = uniqId('upload') . ".$extension";
+
+                $file->saveAs("@webroot/uploads/$name");
+
+                $newFile->url = "/uploads/$name";
+                $newFile->type = $extension;
+                $newFile->size = $file->size;
+
+                $newFile->save();
+
+                $taskFile = new TaskFile();
+
+                $taskFile->task_id = $lastTask->id;
+                $taskFile->file_id = $newFile->id;
+
+                $taskFile->save();
+            }
+
+            return $this->redirect(['tasks/view', 'id' => $lastTask->id]);
+        }
+
+        return $this->render('create', [
+            'model' => $model,
+            'categories' => $categories
+        ]);
     }
 
     /**

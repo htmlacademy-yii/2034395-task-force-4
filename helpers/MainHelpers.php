@@ -2,6 +2,8 @@
 
 namespace app\helpers;
 
+use yii\helpers\StringHelper;
+
 class MainHelpers
 {
     /**
@@ -69,5 +71,51 @@ class MainHelpers
         $correctWord = self::getNounPluralForm($interval, $types[$type][0], $types[$type][1], $types[$type][2]);
 
         return "$interval $correctWord";
+    }
+
+    /**
+     * Возвращает название файла из ссылки на него
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    static function getFileNameFromUrl(string $url): string
+    {
+        $urlParts = explode('/', $url);
+
+        return $urlParts[count($urlParts) - 1];
+    }
+
+    /**
+     * Нормализует размер файла, возвращая правильный тип (байты, кб, мб, гб, тб)
+     *
+     * @param int $size
+     *
+     * @return string
+     */
+    static function normalizeFileSize(int $size): string
+    {
+        $type = '';
+
+        if ($size < 1024 * 1024) {
+            $size = $size / 1024;
+            $type = 'Кб';
+        } else if ($size < 1024 * 1024 * 1024) {
+            $size = $size / (1024 * 1024);
+            $type = 'Мб';
+        } else if ($size < 1024 * 1024 * 1024 * 1024) {
+            $size = $size / (1024 * 1024 * 1024);
+            $type = 'Гб';
+        } else if ($size < 1024 * 1024 * 1024 * 1024 * 1024) {
+            $size = $size / (1024 * 1024 * 1024 * 1024);
+            $type = 'Тб';
+        } else {
+            $type = 'байт';
+        }
+
+        $size = round($size, 2);
+
+        return "$size $type";
     }
 }
