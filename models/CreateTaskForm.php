@@ -82,6 +82,28 @@ class CreateTaskForm extends Model
 
         $task->save(false);
 
+        foreach (UploadedFile::getInstances($this, 'files') as $file) {
+            $newFile = new File();
+            $extension = $file->getExtension();
+
+            $name = uniqId('upload') . ".$extension";
+
+            $file->saveAs("@webroot/uploads/$name");
+
+            $newFile->url = "/uploads/$name";
+            $newFile->type = $extension;
+            $newFile->size = $file->size;
+
+            $newFile->save();
+
+            $taskFile = new TaskFile();
+
+            $taskFile->task_id = $task->id;
+            $taskFile->file_id = $newFile->id;
+
+            $taskFile->save();
+        }
+
         return true;
     }
 }

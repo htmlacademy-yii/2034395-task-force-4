@@ -80,28 +80,6 @@ class TasksController extends Controller
         if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->create()) {
             $lastTask = Task::find()->orderBy('id DESC')->one();
 
-            foreach (UploadedFile::getInstances($model, 'files') as $file) {
-                $newFile = new File();
-                $extension = $file->getExtension();
-
-                $name = uniqId('upload') . ".$extension";
-
-                $file->saveAs("@webroot/uploads/$name");
-
-                $newFile->url = "/uploads/$name";
-                $newFile->type = $extension;
-                $newFile->size = $file->size;
-
-                $newFile->save();
-
-                $taskFile = new TaskFile();
-
-                $taskFile->task_id = $lastTask->id;
-                $taskFile->file_id = $newFile->id;
-
-                $taskFile->save();
-            }
-
             return $this->redirect(['tasks/view', 'id' => $lastTask->id]);
         }
 

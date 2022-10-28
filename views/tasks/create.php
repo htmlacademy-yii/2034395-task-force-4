@@ -1,6 +1,7 @@
 <?php
 
 use yii\widgets\ActiveForm;
+use devgroup\dropzone\DropZone;
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use app\models\CreateTaskForm;
@@ -24,7 +25,7 @@ $this->title = 'Task Force | Create';
         $form = ActiveForm::begin([
             'fieldConfig' => [
                 'template' => "{label}\n{input}\n{error}",
-            ]
+            ],
         ])
         ?>
             <?= Html::tag('h3', 'Публикация нового задания', ['class' => 'head-main']) ?>
