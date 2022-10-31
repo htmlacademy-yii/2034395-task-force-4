@@ -12,6 +12,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property string|null $url
  * @property string|null $type
+ * @property int|null $size
  *
  * @property TaskFile[] $taskFiles
  */
