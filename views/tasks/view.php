@@ -24,7 +24,9 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
             <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
         </div>
         <p class="task-description"><?= Html::encode($task->details) ?></p>
-        <?php if ($task->status === Task::STATUS_NEW && Yii::$app->user->identity->is_executor): ?>
+        <?php if ($task->status === Task::STATUS_NEW &&
+        Yii::$app->user->identity->is_executor &&
+        !Yii::$app->user->identity->getIsUserAcceptedTask($task->id)): ?>
             <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
         <?php elseif ($task->status === Task::STATUS_IN_WORK && Yii::$app->user->identity->is_executor): ?>
             <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>

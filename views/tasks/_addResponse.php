@@ -30,7 +30,7 @@ use yii\widgets\ActiveForm;
                     'template' => '{label}{error}{input}',
                 ],
             ]); ?>
-            <?= $form->field($model, 'task_id')->hiddenInput(['value' => $task->id]) ?>
+            <?= $form->field($model, 'task_id', ['template' => '{input}'])->hiddenInput(['value' => $task->id]) ?>
             <?=
             $form->field($model, 'text')
                 ->textarea()

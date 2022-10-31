@@ -45,7 +45,7 @@ class TasksController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
-                    ]
+                    ],
                 ]
             ]
         ];
@@ -82,13 +82,15 @@ class TasksController extends Controller
 
         $createResponseForm = new CreateResponseForm();
 
-        if ($this->request->getIsPost() && $createResponseForm->load($this->request->post()) && $createResponseForm->create()) {
-            if ($task->executor_id === null && !$user->getIsUserAcceptedTask($id)) {
+        if ($this->request->getIsPost() && $createResponseForm->load($this->request->post())) {
+            if (!$task->executor_id && !$user->getIsUserAcceptedTask($id)) {
+                $createResponseForm->create();
+
                 return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
             }
         }
 
-        return $this->render('view', ['id' => $id]);
+        return $this->render('view', ['task' => $task, 'createResponseForm' => $createResponseForm, 'id' => $id]);
     }
 
     public function actionOwner(): Response|string

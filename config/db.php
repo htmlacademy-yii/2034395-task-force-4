@@ -4,7 +4,7 @@ return [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=localhost;dbname=taskForce',
     'username' => 'root',
-    'password' => 'root',
+    'password' => 'asdSKADkajsdlkrg983134ip!soapsd92',
     'charset' => 'utf8',
 
     // Schema cache options (for production environment)
