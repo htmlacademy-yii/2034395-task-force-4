@@ -2,11 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\CreateResponseForm;
 use app\models\CreateTaskForm;
-use app\models\File;
-use app\models\TaskFile;
+use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use app\models\Task;
@@ -14,6 +15,7 @@ use app\models\Category;
 use app\models\TasksFilterForm;
 use yii\web\Response;
 use yii\web\UploadedFile;
+use yii\widgets\ActiveForm;
 
 class TasksController extends Controller
 {
@@ -34,9 +36,16 @@ class TasksController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
+                        'actions' => ['index', 'view', 'accept', 'decline', 'end'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
+                    [
+                        'actions' => ['create', 'owner', 'submit', 'cancel'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                        'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
+                    ]
                 ]
             ]
         ];
@@ -64,6 +73,22 @@ class TasksController extends Controller
             'filterForm' => $filterForm,
             'additionalParameters' => self::ADDITIONAL_PARAMETERS,
         ]);
+    }
+
+    public function actionAccept(int $id): Response|string
+    {
+        $user = User::findOne(Yii::$app->user->id);
+        $task = Task::findOne($id);
+
+        $createResponseForm = new CreateResponseForm();
+
+        if ($this->request->getIsPost() && $createResponseForm->load($this->request->post()) && $createResponseForm->create()) {
+            if ($task->executor_id === null && !$user->getIsUserAcceptedTask($id)) {
+                return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+            }
+        }
+
+        return $this->render('view', ['id' => $id]);
     }
 
     public function actionOwner(): Response|string
@@ -100,6 +125,8 @@ class TasksController extends Controller
             throw new NotFoundHttpException();
         }
 
-        return $this->render('view', ['task' => $task]);
+        $createResponseForm = new CreateResponseForm();
+
+        return $this->render('view', ['task' => $task, 'createResponseForm' => $createResponseForm]);
     }
 }

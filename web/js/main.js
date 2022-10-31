@@ -1,48 +1,70 @@
-const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
-const overlay = document.querySelector('.overlay');
-const popup = document.querySelector('.pop-up');
-const imgPreviewElement = document.querySelector('.avatar-preview');
+var openModalLinks = document.getElementsByClassName("open-modal");
+var closeModalLinks = document.getElementsByClassName("form-modal-close");
+var overlay = document.getElementsByClassName("overlay")[0];
 
-const actionButtons = document.querySelectorAll('.action-btn');
+for (var i = 0; i < openModalLinks.length; i++) {
+  var modalLink = openModalLinks[i];
 
-actionButtons.forEach(function (el) {
-    el.addEventListener('click', function (evt) {
-        const modalType = evt.target.dataset.action;
-        const modal = document.querySelector('.pop-up--' + modalType);
-        modal.classList.remove('pop-up--close');
-        modal.classList.add('pop-up--open');
-        overlay.classList.add('db');
-    })
-});
+  modalLink.addEventListener("click", function (event) {
+    var modalId = event.currentTarget.getAttribute("data-for");
 
-const buttonsClose = document.querySelectorAll('.button--close');
+    var modal = document.getElementById(modalId);
+    modal.setAttribute("style", "display: block");
+    overlay.setAttribute("style", "display: block");
 
-buttonsClose.forEach(function (el) {
-    el.addEventListener('click', function (evt) {
-        const modalOpen = document.querySelector('.pop-up--open');
-        modalOpen.classList.remove('pop-up--open');
-        modalOpen.classList.add('pop-up--close');
-        overlay.classList.remove('db');
+  });
+}
 
-    })
-});
+function closeModal(event) {
+  var modal = event.currentTarget.parentElement;
 
-let buttonInput = document.querySelector('#button-input');
+  modal.removeAttribute("style");
+  overlay.removeAttribute("style");
+}
 
-if (buttonInput) {
-    buttonInput.addEventListener('change', function (evt) {
-        const file = evt.target.files[0];
-        const fileName = file.name.toLowerCase();
+for (var j = 0; j < closeModalLinks.length; j++) {
+  var closeModalLink = closeModalLinks[j];
 
-        const matches = FILE_TYPES.some(function (it) {
-            return fileName.endsWith(it);
-        });
-        if (matches) {
-            const reader = new FileReader();
-            reader.addEventListener('load', function () {
-                imgPreviewElement.src = reader.result;
-            });
-            reader.readAsDataURL(file);
-        }
-    });
+  closeModalLink.addEventListener("click", closeModal)
+}
+
+document.getElementById('close-modal').addEventListener("click", closeModal);
+
+var starRating = document.getElementsByClassName("completion-form-star");
+
+if (starRating.length) {
+  starRating = starRating[0];
+
+  starRating.addEventListener("click", function(event) {
+    var stars = event.currentTarget.childNodes;
+    var rating = 0;
+
+    for (var i = 0; i < stars.length; i++) {
+      var element = stars[i];
+
+      if (element.nodeName === "SPAN") {
+        element.className = "";
+        rating++;
+      }
+
+      if (element === event.target) {
+        break;
+      }
+    }
+
+    var inputField = document.getElementById("rating");
+    inputField.value = rating;
+  });
+}
+
+var cityDropdown = document.getElementsByClassName('town-select');
+
+if (cityDropdown.length) {
+  cityDropdown = cityDropdown[0];
+
+  cityDropdown.addEventListener('change', function(event) {
+    var selectedCity = event.target.value;
+
+    window.location = '/site/city?city=' + selectedCity;
+  });
 }

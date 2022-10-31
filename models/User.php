@@ -305,4 +305,9 @@ class User extends ActiveRecord implements IdentityInterface
 
         return (int)$interval->format('%Y');
     }
+
+    public function getIsUserAcceptedTask($taskId): bool
+    {
+        return (bool) Response::findOne(['task_id' => $taskId, 'executor_id' => $this->id]);
+    }
 }
