@@ -1,11 +1,13 @@
 <?php
 
-use yii\helpers\Html;
 use app\helpers\MainHelpers;
 use app\models\Response;
+use app\models\Task;
+use yii\helpers\Html;
 
 /**
  * @var Response $response
+ * @var Task $task
  */
 
 ?>
@@ -52,12 +54,17 @@ use app\models\Response;
         </p>
     </div>
     <div class="feedback-wrapper">
-        <p class="info-text"><span
-                    class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад</p>
+        <p class="info-text">
+            <span class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад
+        </p>
         <p class="price price--small"><?= Html::encode($response->price) ?> ₽</p>
     </div>
-    <div class="button-popup">
-        <a href="#" class="button button--blue button--small">Принять</a>
-        <a href="#" class="button button--orange button--small">Отказать</a>
-    </div>
+    <?php if ($task->customer_id === Yii::$app->user->id && $response->status === Response::STATUS_NEW): ?>
+        <div class="button-popup">
+            <?= Html::a('Принять', ['tasks/submit', 'responseId' => $response->id, 'taskId' => $task->id],
+                ['class' => 'button button--blue button--small']); ?>
+            <?= Html::a('Отказать', ['tasks/cancel', 'responseId' => $response->id, 'taskId' => $task->id],
+                ['class' => 'button button--orange button--small']); ?>
+        </div>
+    <?php endif; ?>
 </div>

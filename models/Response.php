@@ -10,6 +10,7 @@ use yii\db\ActiveQuery;
  * This is the model class for table "response".
  *
  * @property int $id
+ * @property string $status
  * @property string|null $creation_date
  * @property string|null $text
  * @property int|null $price
@@ -18,9 +19,20 @@ use yii\db\ActiveQuery;
  *
  * @property User $executor
  * @property Task $task
+ * @property string $statusLabel
  */
 class Response extends ActiveRecord
 {
+    const STATUS_NEW = 'new';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_DECLINED = 'declined';
+
+    const STATUS_MAP = [
+        self::STATUS_NEW => 'Новый отклик',
+        self::STATUS_ACCEPTED => 'Отклик принят',
+        self::STATUS_DECLINED => 'Отклик отклонен'
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -76,5 +88,15 @@ class Response extends ActiveRecord
     public function getTask(): ActiveQuery
     {
         return $this->hasOne(Task::class, ['id' => 'task_id']);
+    }
+
+    /**
+     * Gets string for [[StatusLabel]].
+     *
+     * @return string
+     */
+    public function getStatusLabel(): string
+    {
+        return self::STATUS_MAP[$this->status];
     }
 }

@@ -2,6 +2,7 @@
 
 use app\models\Task;
 use app\models\CreateResponseForm;
+use app\models\EndTaskForm;
 use yii\helpers\Html;
 use app\helpers\MainHelpers;
 use yii\widgets\ActiveForm;
@@ -10,9 +11,9 @@ use yii\widgets\ActiveForm;
  * @var yii\web\View $this
  * @var Task $task
  * @var CreateResponseForm $createResponseForm
+ * @var EndTaskForm $endTaskForm
  * @var ActiveForm $form
  */
-
 
 $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 ?>
@@ -24,12 +25,13 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
             <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
         </div>
         <p class="task-description"><?= Html::encode($task->details) ?></p>
-        <?php if ($task->status === Task::STATUS_NEW &&
-        Yii::$app->user->identity->is_executor &&
-        !Yii::$app->user->identity->getIsUserAcceptedTask($task->id)): ?>
+        <?php if ($task->status === Task::STATUS_NEW && Yii::$app->user->identity->is_executor && !Yii::$app->user->identity->getIsUserAcceptedTask($task->id)): ?>
             <a href="#" class="button button--blue action-btn" data-action="act_response">Откликнуться на задание</a>
-        <?php elseif ($task->status === Task::STATUS_IN_WORK && Yii::$app->user->identity->is_executor): ?>
+        <?php endif; ?>
+        <?php if ($task->status === Task::STATUS_IN_WORK && $task->executor_id === Yii::$app->user->id): ?>
             <a href="#" class="button button--orange action-btn" data-action="refusal">Отказаться от задания</a>
+        <?php endif; ?>
+        <?php if ($task->status === Task::STATUS_IN_WORK && $task->customer_id === Yii::$app->user->id): ?>
             <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
         <?php endif; ?>
         <?php if ($task->city_id && $task->location): ?>
@@ -50,12 +52,16 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                 <p class="map-address"><?= $task->location ?></p>
             </div>
         <?php endif; ?>
-        <?php if (count($task->responses) > 0): ?>
-            <h4 class="head-regular">Отклики на задание</h4>
-        <?php endif; ?>
-        <?php foreach (array_reverse($task->responses) as $response): ?>
-            <?= $this->render('_response', ['response' => $response]) ?>
-        <?php endforeach; ?>
+            <?php if (count($task->responses) > 0): ?>
+                <h4 class="head-regular">Отклики на задание</h4>
+            <?php endif; ?>
+            <?php foreach (array_reverse($task->responses) as $response): ?>
+                <?php if ($response->executor_id === Yii::$app->user->id): ?>
+                    <?= $this->render('_response', ['response' => $response, 'task' => $task]) ?>
+                <?php elseif ($response->task->customer_id === Yii::$app->user->id): ?>
+                    <?= $this->render('_response', ['response' => $response, 'task' => $task]) ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
     </div>
     <div class="right-column">
         <div class="right-card black info-card">
@@ -65,8 +71,10 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                 <dd><?= $task->category->name ?></dd>
                 <dt>Дата публикации</dt>
                 <dd><?= MainHelpers::normalizeDate($task->creation_date) ?> назад</dd>
-                <dt>Срок выполнения</dt>
-                <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
+                <?php if ($task->execution_date): ?>
+                    <dt>Срок выполнения</dt>
+                    <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
+                <?php endif; ?>
                 <dt>Статус</dt>
                 <dd><?= $task->statusLabel ?></dd>
             </dl>
@@ -89,7 +97,7 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
         <?php endif; ?>
     </div>
 </main>
-<?= $this->render('_decline') ?>
-<?= $this->render('_end') ?>
+<?= $this->render('_decline', ['task' => $task]) ?>
+<?= $this->render('_end', ['model' => $endTaskForm, 'task' => $task]) ?>
 <?= $this->render('_addResponse', ['model' => $createResponseForm, 'task' => $task]) ?>
 <div class="overlay"></div>

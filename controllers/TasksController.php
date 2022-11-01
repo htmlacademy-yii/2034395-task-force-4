@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\CreateResponseForm;
 use app\models\CreateTaskForm;
+use app\models\EndTaskForm;
 use app\models\User;
 use Yii;
 use yii\filters\AccessControl;
@@ -36,12 +37,12 @@ class TasksController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'accept', 'decline', 'end'],
+                        'actions' => ['index', 'view', 'accept', 'decline'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
                     [
-                        'actions' => ['create', 'owner', 'submit', 'cancel'],
+                        'actions' => ['create', 'owner', 'submit', 'end', 'cancel'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
@@ -75,9 +76,28 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionAccept(int $id): Response|string
+    public function actionSubmit(int $responseId, int $taskId): Response
     {
-        $user = User::findOne(Yii::$app->user->id);
+        $response = \app\models\Response::findOne($responseId);
+
+        $response->task->executor_id = $response->executor_id;
+        $response->task->status = Task::STATUS_IN_WORK;
+
+        if ($response->task->update()) {
+            foreach ($response->task->responses as $_response) {
+                $_response->status = match ($_response->id) {
+                    $responseId => \app\models\Response::STATUS_ACCEPTED,
+                    default => \app\models\Response::STATUS_DECLINED
+                };
+            }
+        }
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $taskId]));
+    }
+
+    public function actionAccept(int $id): Response
+    {
+        $user = Yii::$app->user->identity;
         $task = Task::findOne($id);
 
         $createResponseForm = new CreateResponseForm();
@@ -85,12 +105,52 @@ class TasksController extends Controller
         if ($this->request->getIsPost() && $createResponseForm->load($this->request->post())) {
             if (!$task->executor_id && !$user->getIsUserAcceptedTask($id)) {
                 $createResponseForm->create();
-
-                return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
             }
         }
 
-        return $this->render('view', ['task' => $task, 'createResponseForm' => $createResponseForm, 'id' => $id]);
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+    }
+
+    public function actionCancel(int $taskId, int $responseId): Response
+    {
+        $user = Yii::$app->user->identity;
+        $task = Task::findOne($taskId);
+        $response = \app\models\Response::findOne($responseId);
+
+        if ($task->customer_id === $user->id) {
+            $response->status = \app\models\Response::STATUS_DECLINED;
+        }
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $taskId]));
+    }
+
+    public function actionEnd(int $id): Response
+    {
+        $user = Yii::$app->user->identity;
+        $task = Task::findOne($id);
+
+        $endTaskForm = new EndTaskForm();
+
+        if ($this->request->getIsPost() && $endTaskForm->load($this->request->post())) {
+            if ($task->customer_id === $user->id && $task->status === Task::STATUS_IN_WORK) {
+                $endTaskForm->end();
+            }
+        }
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+    }
+
+    public function actionDecline(int $id): Response
+    {
+        $user = Yii::$app->user->identity;
+        $task = Task::findOne($id);
+
+        if ($task->executor_id === $user->id && $task->status === Task::STATUS_IN_WORK) {
+            $task->status = Task::STATUS_FAILED;
+            $task->update();
+        }
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
     }
 
     public function actionOwner(): Response|string
@@ -128,7 +188,12 @@ class TasksController extends Controller
         }
 
         $createResponseForm = new CreateResponseForm();
+        $endTaskForm = new EndTaskForm();
 
-        return $this->render('view', ['task' => $task, 'createResponseForm' => $createResponseForm]);
+        return $this->render('view', [
+            'task' => $task,
+            'createResponseForm' => $createResponseForm,
+            'endTaskForm' => $endTaskForm
+        ]);
     }
 }

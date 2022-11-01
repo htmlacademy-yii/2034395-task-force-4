@@ -45,6 +45,7 @@ class CreateResponseForm extends Model
         $response = new Response();
 
         $response->executor_id = Yii::$app->user->id;
+        $response->status = Response::STATUS_NEW;
         $response->task_id = $this->task_id;
         $response->price = $this->price;
         $response->text = $this->text;
