@@ -34,6 +34,9 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
         <?php if ($task->status === Task::STATUS_IN_WORK && $task->customer_id === Yii::$app->user->id): ?>
             <a href="#" class="button button--pink action-btn" data-action="completion">Завершить задание</a>
         <?php endif; ?>
+        <?php if ($task->status === Task::STATUS_NEW && $task->customer_id === Yii::$app->user->id): ?>
+            <a href="#" class="button button--pink action-btn" data-action="cancel">Отменить задание</a>
+        <?php endif; ?>
         <?php if ($task->city_id && $task->location): ?>
             <div class="task-map">
                 <?=
@@ -52,16 +55,17 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                 <p class="map-address"><?= $task->location ?></p>
             </div>
         <?php endif; ?>
-            <?php if (count($task->responses) > 0): ?>
-                <h4 class="head-regular">Отклики на задание</h4>
+        <?php if (count($task->responses) > 0): ?>
+            <h4 class="head-regular">Отклики на задание</h4>
+        <?php endif; ?>
+        <?php foreach (array_reverse($task->responses) as $response): ?>
+            <?php
+            if ($response->task->customer_id === Yii::$app->user->id ||
+                $response->executor_id === Yii::$app->user->id):
+                ?>
+                <?= $this->render('_response', ['response' => $response, 'task' => $task]) ?>
             <?php endif; ?>
-            <?php foreach (array_reverse($task->responses) as $response): ?>
-                <?php if ($response->executor_id === Yii::$app->user->id): ?>
-                    <?= $this->render('_response', ['response' => $response, 'task' => $task]) ?>
-                <?php elseif ($response->task->customer_id === Yii::$app->user->id): ?>
-                    <?= $this->render('_response', ['response' => $response, 'task' => $task]) ?>
-                <?php endif; ?>
-            <?php endforeach; ?>
+        <?php endforeach; ?>
     </div>
     <div class="right-column">
         <div class="right-card black info-card">
@@ -100,4 +104,5 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 <?= $this->render('_decline', ['task' => $task]) ?>
 <?= $this->render('_end', ['model' => $endTaskForm, 'task' => $task]) ?>
 <?= $this->render('_addResponse', ['model' => $createResponseForm, 'task' => $task]) ?>
+<?= $this->render('_cancel', ['task' => $task]) ?>
 <div class="overlay"></div>

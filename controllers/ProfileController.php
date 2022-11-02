@@ -12,12 +12,18 @@ use app\models\User;
 
 class ProfileController extends Controller
 {
+    /**
+     * {@inheritDoc}
+     */
     public function init(): void
     {
         parent::init();
         Yii::$app->user->loginUrl = ['auth/index'];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function behaviors(): array
     {
         return [
@@ -33,13 +39,24 @@ class ProfileController extends Controller
         ];
     }
 
+    /**
+     * Возвращает страницу просмотра своего профиля
+     *
+     * @return Response|string
+     */
     public function actionIndex(): Response|string
     {
         return $this->render('index');
     }
 
     /**
+     * Возвращает страницу просмотра конкретного профиля пользователя по его идентификатору
+     *
+     * @param int $id Идентификатор пользователя
+     *
      * @throws NotFoundHttpException
+     *
+     * @return Response|string
      */
     public function actionView(int $id): Response|string
     {

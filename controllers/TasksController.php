@@ -24,12 +24,18 @@ class TasksController extends Controller
         'executor_id = null' => 'Без исполнителя'
     ];
 
+    /**
+     * {@inheritdoc}
+     */
     public function init(): void
     {
         parent::init();
         Yii::$app->user->loginUrl = ['auth/index'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function behaviors(): array
     {
         return [
@@ -42,7 +48,7 @@ class TasksController extends Controller
                         'roles' => ['@']
                     ],
                     [
-                        'actions' => ['create', 'owner', 'submit', 'end', 'cancel'],
+                        'actions' => ['create', 'owner', 'submit', 'end', 'cancelt', 'cancelr'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
@@ -52,6 +58,11 @@ class TasksController extends Controller
         ];
     }
 
+    /**
+     * Возвращает страницу просмотра заданий, предварительно фильтруя их
+     *
+     * @return Response|string
+     */
     public function actionIndex(): Response|string
     {
         $tasks = Task::find()
@@ -62,10 +73,8 @@ class TasksController extends Controller
         $categories = Category::find()->all();
         $filterForm = new TasksFilterForm();
 
-        if ($this->request->getIsPost()) {
-            if ($filterForm->load($this->request->post()) && $filterForm->validate()) {
-                $tasks = $filterForm->filter();
-            }
+        if ($filterForm->load($this->request->post()) && $filterForm->validate()) {
+            $tasks = $filterForm->filter();
         }
 
         return $this->render('index', [
@@ -76,95 +85,33 @@ class TasksController extends Controller
         ]);
     }
 
-    public function actionSubmit(int $responseId, int $taskId): Response
+    /**
+     * Возвращает страницу просмотра заданий, предварительно фильтруя их
+     *
+     * @param string $type Тип страницы для отображения стилей и названия
+     * @param array $status Массив статусов для фильтрации заданий
+     *
+     * @return Response|string
+     */
+    public function actionOwner(string $type, array $status): Response|string
     {
-        $response = \app\models\Response::findOne($responseId);
+        $tasks = Task::findAll(['customer_id' => Yii::$app->user->id, 'status' => $status]);
 
-        $response->task->executor_id = $response->executor_id;
-        $response->task->status = Task::STATUS_IN_WORK;
-
-        if ($response->task->update()) {
-            foreach ($response->task->responses as $_response) {
-                $_response->status = match ($_response->id) {
-                    $responseId => \app\models\Response::STATUS_ACCEPTED,
-                    default => \app\models\Response::STATUS_DECLINED
-                };
-            }
-        }
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $taskId]));
+        return $this->render('owner', ['tasks' => $tasks, 'type' => $type]);
     }
 
-    public function actionAccept(int $id): Response
-    {
-        $user = Yii::$app->user->identity;
-        $task = Task::findOne($id);
-
-        $createResponseForm = new CreateResponseForm();
-
-        if ($this->request->getIsPost() && $createResponseForm->load($this->request->post())) {
-            if (!$task->executor_id && !$user->getIsUserAcceptedTask($id)) {
-                $createResponseForm->create();
-            }
-        }
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
-    }
-
-    public function actionCancel(int $taskId, int $responseId): Response
-    {
-        $user = Yii::$app->user->identity;
-        $task = Task::findOne($taskId);
-        $response = \app\models\Response::findOne($responseId);
-
-        if ($task->customer_id === $user->id) {
-            $response->status = \app\models\Response::STATUS_DECLINED;
-        }
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $taskId]));
-    }
-
-    public function actionEnd(int $id): Response
-    {
-        $user = Yii::$app->user->identity;
-        $task = Task::findOne($id);
-
-        $endTaskForm = new EndTaskForm();
-
-        if ($this->request->getIsPost() && $endTaskForm->load($this->request->post())) {
-            if ($task->customer_id === $user->id && $task->status === Task::STATUS_IN_WORK) {
-                $endTaskForm->end();
-            }
-        }
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
-    }
-
-    public function actionDecline(int $id): Response
-    {
-        $user = Yii::$app->user->identity;
-        $task = Task::findOne($id);
-
-        if ($task->executor_id === $user->id && $task->status === Task::STATUS_IN_WORK) {
-            $task->status = Task::STATUS_FAILED;
-            $task->update();
-        }
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
-    }
-
-    public function actionOwner(): Response|string
-    {
-        return $this->render('owner');
-    }
-
+    /**
+     * Возвращает страницу создания задания, обрабатывает пришедший POST запрос
+     *
+     * @return Response|string
+     */
     public function actionCreate(): Response|string
     {
         $categories = Category::find()->all();
 
         $model = new CreateTaskForm();
 
-        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->create()) {
+        if ($model->load($this->request->post()) && $model->create()) {
             $lastTask = Task::find()->orderBy('id DESC')->one();
 
             return $this->redirect(['tasks/view', 'id' => $lastTask->id]);
@@ -177,15 +124,17 @@ class TasksController extends Controller
     }
 
     /**
+     * Возвращает страницу просмотра задания по его идентификатору
+     *
+     * @param int $id Идентификатор задания
+     *
      * @throws NotFoundHttpException
+     *
+     * @return Response|string
      */
     public function actionView(int $id): Response|string
     {
-        $task = Task::findOne($id);
-
-        if (!$task) {
-            throw new NotFoundHttpException();
-        }
+        $task = $this->find($id);
 
         $createResponseForm = new CreateResponseForm();
         $endTaskForm = new EndTaskForm();
@@ -195,5 +144,124 @@ class TasksController extends Controller
             'createResponseForm' => $createResponseForm,
             'endTaskForm' => $endTaskForm
         ]);
+    }
+
+    /**
+     * Возвращает задание по идентификатору, либо ошибку, если такое задание не найдено
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @throws NotFoundHttpException
+     *
+     * @return Task
+     */
+    public function find(int $id): Task
+    {
+        return Task::findOne($id) ?? throw new NotFoundHttpException();
+    }
+
+    /**
+     * Меняет статус отклика на "Принят" по его идентификатору, отклоняя остальные отклики на данное задание
+     *
+     * @param int $responseId Идентификатор отклика
+     *
+     * @return Response
+     */
+    public function actionSubmit(int $responseId): Response
+    {
+        $response = \app\models\Response::findOne($responseId);
+
+        $response->submit();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $response->task_id]));
+    }
+
+    /**
+     * Создает новый отклик на задание по его идентификатору
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @return Response
+     */
+    public function actionAccept(int $id): Response
+    {
+        $response = new \app\models\Response();
+
+        $response->create();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+    }
+
+    /**
+     * Меняет статус отклика на "Отклонен" по его идентификатору
+     *
+     * @param int $responseId Идентификатор отклика
+     *
+     * @return Response
+     */
+    public function actionCancelr(int $responseId): Response
+    {
+        $response = \app\models\Response::findOne($responseId);
+
+        $response->cancel();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $response->task_id]));
+    }
+
+    /**
+     * Меняет статус задания на "Отменено" и отклоняет все отклики на него
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @throws NotFoundHttpException
+     *
+     * @return Response
+     *
+     */
+    public function actionCancelt(int $id): Response
+    {
+        $task = $this->find($id);
+
+        $task->cancel();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+    }
+
+    /**
+     * Меняет статус задания на "Выполнено"
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @throws NotFoundHttpException
+     *
+     * @return Response
+     *
+     */
+    public function actionEnd(int $id): Response
+    {
+        $task = $this->find($id);
+
+        $task->end();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
+    }
+
+    /**
+     * Меняет статус задания на "Провалено" и отклоняет все отклики на него
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @throws NotFoundHttpException
+     *
+     * @return Response
+     *
+     */
+    public function actionDecline(int $id): Response
+    {
+        $task = $this->find($id);
+
+        $task->decline();
+
+        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
     }
 }

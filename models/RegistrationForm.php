@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\db\StaleObjectException;
 
 class RegistrationForm extends Model
 {
@@ -45,6 +46,14 @@ class RegistrationForm extends Model
         ];
     }
 
+    /**
+     * Создает аккаунт нового пользователя, обрабатывая данные, пришедшие в POST запросе
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
     public function register(): bool
     {
         if (!$this->validate()) {

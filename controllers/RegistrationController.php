@@ -11,6 +11,11 @@ use yii\web\Response;
 
 class RegistrationController extends Controller
 {
+    /**
+     * Возвращает страницу регистрации, обрабатывает POST запрос и создает аккаунт
+     *
+     * @return Response|string
+     */
     public function actionIndex(): Response|string
     {
         if (!Yii::$app->user->isGuest) {
@@ -21,7 +26,7 @@ class RegistrationController extends Controller
 
         $model = new RegistrationForm();
 
-        if ($this->request->getIsPost() && $model->load($this->request->post()) && $model->register()) {
+        if ($model->load($this->request->post()) && $model->register()) {
             return $this->redirect(Url::to(['tasks/index']));
         }
 

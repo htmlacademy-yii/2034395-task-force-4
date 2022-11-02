@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "task".
@@ -170,5 +171,71 @@ class Task extends ActiveRecord
     public function getStatusLabel(): string
     {
         return self::STATUS_MAP[$this->status];
+    }
+
+    /**
+     * Проверяет, является ли пользователь заказчиком и статус задания для того, чтобы изменить его статус на "Выполнено"
+     *
+     * @return bool
+     */
+    public function end(): bool
+    {
+        if ($this->customer_id !== Yii::$app->user->id || $this->status !== self::STATUS_IN_WORK) {
+            return false;
+        }
+
+        $model = new EndTaskForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->end()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверяет, является ли пользователь исполнителем и статус задания для того, чтобы изменить его статус на "Провалено"
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
+    public function decline(): bool
+    {
+        if ($this->executor_id !== Yii::$app->user->id || $this->status !== self::STATUS_IN_WORK) {
+            return false;
+        }
+
+        $this->status = self::STATUS_FAILED;
+        return $this->update();
+    }
+
+    /**
+     * Проверяет, является ли пользователь заказчиком и статус задания для того, чтобы изменить его статус на "Отменено"
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
+    public function cancel(): bool
+    {
+        if ($this->customer_id !== Yii::$app->user->id || $this->status !== self::STATUS_NEW) {
+            return false;
+        }
+
+        $this->status = self::STATUS_CANCELED;
+
+        if (!$this->update()) {
+            return false;
+        }
+
+        foreach ($this->responses as $response) {
+            $response->status = Response::STATUS_DECLINED;
+            $response->update();
+        }
+
+        return true;
     }
 }

@@ -15,6 +15,11 @@ use yii\widgets\ActiveForm;
 
 class AuthController extends Controller
 {
+    /**
+     * Возвращает страницу авторизации, обрабатывает AJAX запрос, а также логинит пользователя на сайт
+     *
+     * @return Response|string|array
+     */
     public function actionIndex(): Response|string|array
     {
         if (!Yii::$app->user->isGuest) {
@@ -28,10 +33,8 @@ class AuthController extends Controller
             return ActiveForm::validate($model);
         }
 
-        if ($this->request->getIsPost() && $model->load($this->request->post())) {
-            if ($model->login()) {
-                return $this->redirect(Url::to(['tasks/index']));
-            }
+        if ($model->load($this->request->post()) && $model->login()) {
+            return $this->redirect(Url::to(['tasks/index']));
         }
 
         $model->password = null;
@@ -39,6 +42,11 @@ class AuthController extends Controller
         return $this->render('index', ['model' => $model]);
     }
 
+    /**
+     * Закрывает сессию пользователя, очищает куки и выходит из аккаунта пользователя
+     *
+     * @return Response
+     */
     public function actionLogout(): Response
     {
         Yii::$app->user->logout();

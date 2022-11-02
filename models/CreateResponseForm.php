@@ -42,6 +42,14 @@ class CreateResponseForm extends Model
             return false;
         }
 
+        $user = Yii::$app->user->identity;
+        $task = Task::findOne($this->task_id);
+
+        if ($task->executor_id || $user->getIsUserAcceptedTask($task->id)) {
+            $this->addError('text', 'На это задание невозможно откликнуться.');
+            return false;
+        }
+
         $response = new Response();
 
         $response->executor_id = Yii::$app->user->id;

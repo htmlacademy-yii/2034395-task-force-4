@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\ActiveQuery;
+use yii\db\StaleObjectException;
 
 /**
  * This is the model class for table "response".
@@ -50,8 +51,20 @@ class Response extends ActiveRecord
             [['creation_date'], 'safe'],
             [['text'], 'string'],
             [['price', 'executor_id', 'task_id'], 'integer'],
-            [['executor_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['executor_id' => 'id']],
-            [['task_id'], 'exist', 'skipOnError' => true, 'targetClass' => Task::class, 'targetAttribute' => ['task_id' => 'id']],
+            [
+                ['executor_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::class,
+                'targetAttribute' => ['executor_id' => 'id']
+            ],
+            [
+                ['task_id'],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => Task::class,
+                'targetAttribute' => ['task_id' => 'id']
+            ],
         ];
     }
 
@@ -98,5 +111,72 @@ class Response extends ActiveRecord
     public function getStatusLabel(): string
     {
         return self::STATUS_MAP[$this->status];
+    }
+
+    /**
+     * Создает новый отклик
+     *
+     * @return bool
+     */
+    public function create(): bool
+    {
+        $model = new CreateResponseForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->create()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Проверяет, является ли пользователь заказчиком и меняет статус отклика на "Отклонен"
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
+    public function cancel(): bool
+    {
+        if ($this->task->customer_id !== Yii::$app->user->id) {
+            return false;
+        }
+
+        $this->status = self::STATUS_DECLINED;
+        return $this->update();
+    }
+
+    /**
+     * Проверяет, является ли пользователь заказчиком и меняет статус отклика на "Принят", также меняет статус задания на "В работе"
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
+    public function submit(): bool
+    {
+        if ($this->task->customer_id !== Yii::$app->user->id) {
+            return false;
+        }
+
+        $this->task->executor_id = $this->executor_id;
+        $this->task->status = Task::STATUS_IN_WORK;
+
+        if (!$this->task->update()) {
+            return false;
+        }
+
+        foreach ($this->task->responses as $response) {
+            $response->status = match ($response->id) {
+                $this->id => self::STATUS_ACCEPTED,
+                default => self::STATUS_DECLINED
+            };
+
+            $response->update();
+        }
+
+        return true;
     }
 }

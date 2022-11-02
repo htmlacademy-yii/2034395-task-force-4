@@ -11,7 +11,7 @@ class EndTaskForm extends Model
     public ?int $customer_id = null;
     public ?int $executor_id = null;
     public ?string $text = null;
-    public ?int $grade = null;
+    public ?string $grade = null;
 
     /**
      * {@inheritDoc}
@@ -54,7 +54,7 @@ class EndTaskForm extends Model
         $review->customer_id = $this->customer_id;
         $review->executor_id = $this->executor_id;
         $review->text = $this->text;
-        $review->grade = $this->grade;
+        $review->grade = (int) $this->grade;
         $review->creation_date = date('Y-m-d H:i:s', time());
 
         $review->save(false);

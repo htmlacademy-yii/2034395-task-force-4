@@ -29,18 +29,10 @@ use yii\widgets\ActiveForm;
                     'template' => '{label}{input}{error}',
                 ],
             ]); ?>
-            <?=
-            $form->field($model, 'task_id', ['template' => '{input}'])
-                ->hiddenInput(['value' => $task->id]);
-            ?>
-            <?=
-            $form->field($model, 'customer_id', ['template' => '{input}'])
-                ->hiddenInput(['value' => $task->customer_id]);
-            ?>
-            <?=
-            $form->field($model, 'executor_id', ['template' => '{input}'])
-                ->hiddenInput(['value' => $task->executor_id]);
-            ?>
+
+            <?= Html::activeHiddenInput($model, 'task_id', ['value' => $task->id]) ?>
+            <?= Html::activeHiddenInput($model, 'customer_id', ['value' => $task->customer_id]) ?>
+            <?= Html::activeHiddenInput($model, 'executor_id', ['value' => $task->executor_id]) ?>
 
             <?=
             $form->field($model, 'text')
@@ -48,13 +40,11 @@ use yii\widgets\ActiveForm;
                 ->label('Ваш комментарий');
             ?>
             <?= Html::tag('p', 'Оценка работы', ['class' => 'completion-head control-label']) ?>
-            <?=
-            $form->field($model, 'grade', ['template' => '{input}'])
-                ->hiddenInput(['value' => 0]);
-            ?>
-            <div class="stars-rating big active-stars">
+
+            <?= Html::activeHiddenInput($model, 'grade') ?><div class="stars-rating big active-stars">
                 <span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span>
             </div>
+
             <?= Html::submitInput('Завершить', ['class' => 'button button--pop-up button--blue']) ?>
             <?php ActiveForm::end(); ?>
         </div>

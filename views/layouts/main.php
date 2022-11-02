@@ -9,7 +9,7 @@ use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\User;
+use app\models\Task;
 
 $user = Yii::$app->user->identity;
 
@@ -60,7 +60,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
 
                 $items = [
                     ['label' => 'Новое', 'url' => ['tasks/index'], 'role' => 'executor'],
-                    ['label' => 'Мои задания', 'url' => ['tasks/owner'], 'role' => 'customer'],
+                    ['label' => 'Мои задания', 'url' => ['tasks/owner', 'type' => 'new', 'status' => [Task::STATUS_NEW]], 'role' => 'customer'],
                     ['label' => 'Создать задание', 'url' => ['tasks/create'], 'role' => 'customer'],
                     ['label' => 'Настройки', 'url' => ['settings/index'], 'role' => 'executor'],
                 ];
