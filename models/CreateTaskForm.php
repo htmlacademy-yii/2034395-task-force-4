@@ -32,8 +32,7 @@ class CreateTaskForm extends Model
             ['location', 'string', 'max' => 255],
             [
                 'execution_date',
-                'datetime',
-                'format' => 'Y-m-d H:i:s',
+                'safe',
             ],
             [['category_id', 'city_id'], 'integer'],
             ['budget', 'integer', 'min' => 0],
@@ -74,7 +73,7 @@ class CreateTaskForm extends Model
         $task->city_id = $this->city_id;
         $task->location = $this->location;
         $task->budget = $this->budget;
-        $task->execution_date = $this->execution_date;
+        $task->execution_date = date('Y-m-d H:i:s', strtotime($this->execution_date));
 
         $task->status = Task::STATUS_NEW;
         $task->customer_id = Yii::$app->user->id;

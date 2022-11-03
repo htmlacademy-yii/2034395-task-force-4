@@ -11,7 +11,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\models\User;
 
-$user = User::findOne(Yii::$app->user->id);
+$user = Yii::$app->user->identity;
 
 LandingAsset::register($this);
 

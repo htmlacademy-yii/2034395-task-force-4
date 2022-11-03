@@ -33,6 +33,11 @@ class TasksFilterForm extends Model
         ];
     }
 
+    /**
+     * Возвращает массив заданий, фильтруя их, исходя из заданных параметров
+     *
+     * @return array
+     */
     public function filter(): array
     {
         $tasks = Task::find()->where(['status' => Task::STATUS_NEW]);

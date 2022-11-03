@@ -5,7 +5,7 @@
 use yii\helpers\Html;
 use app\models\User;
 
-$user = User::findOne(Yii::$app->user->id);
+$user = Yii::$app->user->identity;
 
 $this->title = 'Task Force | Settings';
 ?>

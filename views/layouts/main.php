@@ -9,9 +9,9 @@ use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\User;
+use app\models\Task;
 
-$user = User::findOne(Yii::$app->user->id);
+$user = Yii::$app->user->identity;
 
 AppAsset::register($this);
 
@@ -59,18 +59,20 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                 $activeItemClass = 'list-item list-item--active';
 
                 $items = [
-                    ['label' => 'Новое', 'url' => ['tasks/index']],
-                    ['label' => 'Мои задания', 'url' => ['tasks/owner']],
-                    ['label' => 'Создать задание', 'url' => ['tasks/create']],
-                    ['label' => 'Настройки', 'url' => ['settings/index']],
+                    ['label' => 'Новое', 'url' => ['tasks/index'], 'role' => 'executor'],
+                    ['label' => 'Мои задания', 'url' => ['tasks/owner', 'type' => 'new', 'status' => [Task::STATUS_NEW]], 'role' => 'customer'],
+                    ['label' => 'Создать задание', 'url' => ['tasks/create'], 'role' => 'customer'],
+                    ['label' => 'Настройки', 'url' => ['settings/index'], 'role' => 'executor'],
                 ];
                 ?>
 
                 <ul class="nav-list">
                     <?php foreach ($items as $item): ?>
-                        <li class="<?= Yii::$app->requestedRoute === $item['url'][0] ? $activeItemClass : $itemClass ?>">
-                            <?= Html::a($item['label'], Url::to($item['url']), ['class' => 'link link--nav']); ?>
-                        </li>
+                        <?php if (($item['role'] === 'customer' && !$user->is_executor) || $item['role'] === 'executor'): ?>
+                            <li class="<?= Yii::$app->requestedRoute === $item['url'][0] ? $activeItemClass : $itemClass ?>">
+                                <?= Html::a($item['label'], Url::to($item['url']), ['class' => 'link link--nav']); ?>
+                            </li>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </ul>
             </div>

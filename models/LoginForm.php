@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\db\StaleObjectException;
 
 class LoginForm extends Model
 {
@@ -34,6 +35,11 @@ class LoginForm extends Model
         ];
     }
 
+    /**
+     * Проверяет, существует ли аккаунт на указанный email и проверяет его пароль с указанным в форме
+     *
+     * @return bool
+     */
     public function validatePassword(): bool
     {
         $user = User::findOne(['email' => $this->email]);
@@ -51,6 +57,11 @@ class LoginForm extends Model
         return true;
     }
 
+    /**
+     * Авторизует пользователя на сайте
+     *
+     * @return bool
+     */
     public function login(): bool
     {
         if (!$this->validate()) {

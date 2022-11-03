@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\db\StaleObjectException;
 
 class RegistrationForm extends Model
 {
@@ -45,6 +46,14 @@ class RegistrationForm extends Model
         ];
     }
 
+    /**
+     * Создает аккаунт нового пользователя, обрабатывая данные, пришедшие в POST запросе
+     *
+     * @throws \Throwable
+     * @throws StaleObjectException
+     *
+     * @return bool
+     */
     public function register(): bool
     {
         if (!$this->validate()) {
@@ -55,6 +64,7 @@ class RegistrationForm extends Model
 
         $user->username = $this->username;
         $user->email = $this->email;
+        $user->status = User::STATUS_FREE;
         $user->city_id = $this->city_id;
         $user->is_executor = (int)$this->is_executor;
         $user->password = Yii::$app->security->generatePasswordHash($this->password);

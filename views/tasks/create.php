@@ -53,7 +53,7 @@ $this->title = 'Task Force | Create';
                 ?>
                 <?=
                 $form->field($model, 'execution_date')
-                    ->input('date');
+                    ->input('datetime-local');
                 ?>
             </div>
             <?=
