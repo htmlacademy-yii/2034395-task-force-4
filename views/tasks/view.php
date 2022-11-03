@@ -6,6 +6,7 @@ use app\models\EndTaskForm;
 use yii\helpers\Html;
 use app\helpers\MainHelpers;
 use yii\widgets\ActiveForm;
+use phpnt\yandexMap\YandexMaps;
 
 /**
  * @var yii\web\View $this
@@ -14,6 +15,25 @@ use yii\widgets\ActiveForm;
  * @var EndTaskForm $endTaskForm
  * @var ActiveForm $form
  */
+
+$items = [
+    [
+        'latitude' => $task->city->lat,
+        'longitude' => $task->city->long,
+        'options' => [
+            [
+                'hintContent' => $task->city->name,
+                'balloonContentHeader' => $task->title,
+                'balloonContentBody' => $task->details,
+                'balloonContentFooter' => 'TaskForce, 2022'
+            ],
+            [
+                'preset' => 'islands#icon',
+                'iconColor' => '#19a111'
+            ]
+        ]
+    ]
+];
 
 $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 ?>
@@ -40,16 +60,23 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
         <?php if ($task->city_id && $task->location): ?>
             <div class="task-map">
                 <?=
-                Html::img
-                (
-                    '@web/img/map.png',
-                    [
-                        'class' => 'map',
-                        'width' => 725,
-                        'height' => 346,
-                        'alt' => $task->city->name
-                    ]
-                )
+                YandexMaps::widget([
+                    'myPlacemarks' => $items,
+                    'mapOptions' => [
+                        'center' => [$task->city->lat, $task->city->long],
+                        'zoom' => 15,
+                        'controls' => ['zoomControl'],
+                        'control' => [
+                            'zoomControl' => [
+                                'top' => 75,
+                                'left' => 5,
+                            ]
+                        ]
+                    ],
+                    'disableScroll' => true,
+                    'windowWidth' => '725px',
+                    'windowHeight' => '346px'
+                ]);
                 ?>
                 <p class="map-address town"><?= $task->city->name ?></p>
                 <p class="map-address"><?= $task->location ?></p>

@@ -28,6 +28,8 @@ $this->title = 'Task Force | Create';
             ],
         ])
         ?>
+            <?= Html::activeHiddenInput($model, 'city_id'); ?>
+
             <?= Html::tag('h3', 'Публикация нового задания', ['class' => 'head-main']) ?>
             <?=
             $form->field($model, 'title')

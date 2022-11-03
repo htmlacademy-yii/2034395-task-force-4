@@ -2,11 +2,10 @@
 
 namespace app\models;
 
+use app\controllers\AjaxController;
 use Yii;
 use yii\base\Model;
-use yii\helpers\Console;
-use yii\web\Controller;
-use yii\web\Response;
+use yii\helpers\Url;
 use yii\web\UploadedFile;
 
 class CreateTaskForm extends Model
@@ -14,9 +13,9 @@ class CreateTaskForm extends Model
     public ?string $title = null;
     public ?string $details = null;
     public ?int $category_id = null;
-    public int $city_id = 1;
+    public ?int $city_id = null;
     public ?string $location = null;
-    public int $budget = 0;
+    public ?int $budget = null;
     public ?string $execution_date = null;
     public array $files = [];
 
@@ -37,7 +36,6 @@ class CreateTaskForm extends Model
             [['category_id', 'city_id'], 'integer'],
             ['budget', 'integer', 'min' => 0],
             ['category_id', 'exist', 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
-            ['city_id', 'exist', 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
             ['files', 'file', 'maxFiles' => 0]
         ];
     }
@@ -65,19 +63,26 @@ class CreateTaskForm extends Model
             return false;
         }
 
+        $geocoder = AjaxController::actionGeocoder($this->location);
+
+        $address = $geocoder->description;
+
+        $city = City::findOne(['name' => explode(',', $address)[0]]);
+
         $task = new Task();
 
         $task->title = $this->title;
         $task->details = $this->details;
         $task->category_id = $this->category_id;
-        $task->city_id = $this->city_id;
-        $task->location = $this->location;
         $task->budget = $this->budget;
         $task->execution_date = date('Y-m-d H:i:s', strtotime($this->execution_date));
 
         $task->status = Task::STATUS_NEW;
         $task->customer_id = Yii::$app->user->id;
         $task->creation_date = date('Y-m-d H:i:s', time());
+
+        $task->location = $geocoder->name;
+        $task->city_id = $city->id ?? 0;
 
         $task->save(false);
 

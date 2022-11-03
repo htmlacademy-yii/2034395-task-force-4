@@ -227,9 +227,7 @@ class Task extends ActiveRecord
 
         $this->status = self::STATUS_CANCELED;
 
-        if (!$this->update()) {
-            return false;
-        }
+        $this->update(false);
 
         foreach ($this->responses as $response) {
             $response->status = Response::STATUS_DECLINED;

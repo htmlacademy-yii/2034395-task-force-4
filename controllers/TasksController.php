@@ -2,22 +2,19 @@
 
 namespace app\controllers;
 
+use Yii;
+use yii\web\Controller;
+use yii\web\Response;
+use yii\filters\AccessControl;
+use yii\helpers\Url;
+use app\models\Task;
+use app\models\Category;
 use app\models\CreateResponseForm;
 use app\models\CreateTaskForm;
 use app\models\EndTaskForm;
-use app\models\User;
-use Yii;
-use yii\db\StaleObjectException;
-use yii\filters\AccessControl;
-use yii\helpers\Url;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use app\models\Task;
-use app\models\Category;
 use app\models\TasksFilterForm;
-use yii\web\Response;
-use yii\web\UploadedFile;
-use yii\widgets\ActiveForm;
+use yii\db\StaleObjectException;
+use yii\web\NotFoundHttpException;
 
 class TasksController extends Controller
 {
@@ -143,7 +140,7 @@ class TasksController extends Controller
         return $this->render('view', [
             'task' => $task,
             'createResponseForm' => $createResponseForm,
-            'endTaskForm' => $endTaskForm
+            'endTaskForm' => $endTaskForm,
         ]);
     }
 
