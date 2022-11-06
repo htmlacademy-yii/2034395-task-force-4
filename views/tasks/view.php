@@ -18,8 +18,8 @@ use phpnt\yandexMap\YandexMaps;
 
 $items = [
     [
-        'latitude' => $task->city->lat,
-        'longitude' => $task->city->long,
+        'latitude' => $task->location_lat,
+        'longitude' => $task->location_long,
         'options' => [
             [
                 'hintContent' => $task->city->name,
@@ -63,7 +63,7 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                 YandexMaps::widget([
                     'myPlacemarks' => $items,
                     'mapOptions' => [
-                        'center' => [$task->city->lat, $task->city->long],
+                        'center' => [$task->location_lat, $task->location_long],
                         'zoom' => 15,
                         'controls' => ['zoomControl'],
                         'control' => [

@@ -20,6 +20,8 @@ use yii\db\StaleObjectException;
  * @property int|null $executor_id
  * @property int|null $city_id
  * @property string|null $location
+ * @property float|null $location_lat
+ * @property float|null $location_long
  * @property int|null $budget
  * @property string|null $execution_date
  *

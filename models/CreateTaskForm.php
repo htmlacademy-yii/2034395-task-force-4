@@ -2,10 +2,9 @@
 
 namespace app\models;
 
-use app\controllers\AjaxController;
+use app\helpers\MainHelpers;
 use Yii;
 use yii\base\Model;
-use yii\helpers\Url;
 use yii\web\UploadedFile;
 
 class CreateTaskForm extends Model
@@ -13,7 +12,6 @@ class CreateTaskForm extends Model
     public ?string $title = null;
     public ?string $details = null;
     public ?int $category_id = null;
-    public ?int $city_id = null;
     public ?string $location = null;
     public ?int $budget = null;
     public ?string $execution_date = null;
@@ -33,7 +31,7 @@ class CreateTaskForm extends Model
                 'execution_date',
                 'safe',
             ],
-            [['category_id', 'city_id'], 'integer'],
+            ['category_id', 'integer'],
             ['budget', 'integer', 'min' => 0],
             ['category_id', 'exist', 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
             ['files', 'file', 'maxFiles' => 0]
@@ -63,9 +61,11 @@ class CreateTaskForm extends Model
             return false;
         }
 
-        $geocoder = AjaxController::actionGeocoder($this->location);
+        $geocoder = MainHelpers::getGeocoderData($this->location);
 
         $address = $geocoder->description;
+
+        $coords = explode(' ', $geocoder->Point->pos);
 
         $city = City::findOne(['name' => explode(',', $address)[0]]);
 
@@ -82,7 +82,10 @@ class CreateTaskForm extends Model
         $task->creation_date = date('Y-m-d H:i:s', time());
 
         $task->location = $geocoder->name;
-        $task->city_id = $city->id ?? 0;
+        $task->location_lat = $coords[1];
+        $task->location_long = $coords[0];
+
+        $task->city_id = $city->id;
 
         $task->save(false);
 
