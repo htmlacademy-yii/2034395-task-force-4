@@ -6,6 +6,8 @@ use Yii;
 use yii\web\Controller;
 use yii\web\Response;
 use app\models\LoginForm;
+use app\models\VkAuth;
+use app\models\User;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 
@@ -52,5 +54,26 @@ class AuthController extends Controller
         Yii::$app->user->logout();
 
         return $this->goHome();
+    }
+
+    public function actionVk(): void
+    {
+        $oauth = new VkAuth();
+        $oauth->auth();
+    }
+
+    public function actionOauth(string $code): Response
+    {
+        $oauth = new VkAuth();
+        $token = $oauth->getToken($code);
+
+        $user = User::findOne(['email' => $token['email'] ?? null]);
+
+        if (!$user) {
+            return $this->redirect(Url::to(['registration/vk', 'token' => json_encode($token)]));
+        }
+
+        Yii::$app->user->login($user);
+        return $this->redirect(Url::to(['tasks/index']));
     }
 }

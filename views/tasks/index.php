@@ -1,7 +1,6 @@
 <?php
 
 use app\models\Category;
-use app\models\Task;
 use app\models\TasksFilterForm;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
@@ -28,26 +27,25 @@ $this->title = 'Task Force | New Tasks';
         <?= ListView::widget([
             'dataProvider' => $dataProvider,
             'itemView' => '_task',
+            'layout' => "{items}\n<div class='pagination-wrapper'>{pager}</div>",
+            'emptyText' => 'Новых заданий больше нет.',
+            'pager' => [
+                'hideOnSinglePage' => true,
+                'maxButtonCount' => 3,
+                'options' => [
+                    'class' => 'pagination-list',
+                ],
+                'nextPageLabel' => '',
+                'prevPageLabel' => '',
+                'nextPageCssClass' => 'pagination-item mark',
+                'prevPageCssClass' => 'pagination-item mark',
+                'pageCssClass' => 'pagination-item',
+                'linkOptions' => [
+                    'class' => 'link link--page'
+                ]
+            ],
+            'sorter' => 'asc'
         ]) ?>
-        <div class="pagination-wrapper">
-            <ul class="pagination-list">
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">1</a>
-                </li>
-                <li class="pagination-item pagination-item--active">
-                    <a href="#" class="link link--page">2</a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">3</a>
-                </li>
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-            </ul>
-        </div>
     </div>
     <div class="right-column">
         <div class="right-card black">

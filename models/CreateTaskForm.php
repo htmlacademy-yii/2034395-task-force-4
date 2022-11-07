@@ -60,8 +60,6 @@ class CreateTaskForm extends Model
         $city = City::findOne(['name' => explode(',', $geocoder?->description)[0] ?? null]);
 
         if (!$city) {
-            var_dump($geocoder);
-
             $this->addError('location', 'Город не найден');
             return false;
         }
@@ -103,7 +101,9 @@ class CreateTaskForm extends Model
         $task->location_lat = $coords[1] ?? null;
         $task->location_long = $coords[0] ?? null;
 
-        $task->city_id = $city?->id;
+        if ($city?->id) {
+            $task->city_id = $city->id;
+        }
 
         $task->save(false);
 

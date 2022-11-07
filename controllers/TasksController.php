@@ -77,6 +77,9 @@ class TasksController extends Controller
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['id' => SORT_DESC],
+            ],
             'pagination' => [
                 'pageSize' => 5,
             ]
@@ -119,7 +122,7 @@ class TasksController extends Controller
         if ($model->load($this->request->post()) && $model->create()) {
             $lastTask = Task::find()->orderBy('id DESC')->one();
 
-            return $this->redirect(['tasks/view', 'id' => $lastTask->id]);
+            return $this->redirect(Url::to(['tasks/view', 'id' => $lastTask->id]));
         }
 
         return $this->render('create', [
