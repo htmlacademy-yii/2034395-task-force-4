@@ -1,7 +1,7 @@
 <?php
 
-use app\models\Task;
 use app\helpers\MainHelpers;
+use app\models\Task;
 use yii\helpers\Html;
 
 /**
@@ -12,8 +12,11 @@ use yii\helpers\Html;
 
 <div class="task-card">
     <div class="header-task">
-        <?= Html::a(Html::encode($task->title), ['tasks/view', 'id' => $task->id], ['class' => 'link link--block link--big']) ?>
-        <p class="price price--task"><?= Html::encode($task->budget) ?> ₽</p>
+        <?= Html::a(Html::encode($task->title), ['tasks/view', 'id' => $task->id],
+            ['class' => 'link link--block link--big']) ?>
+        <?php if ($task->budget > 0): ?>
+            <p class="price price--task"><?= Html::encode($task->budget) ?> ₽</p>
+        <?php endif; ?>
     </div>
     <p class="info-text">
         <span class="current-time"><?= MainHelpers::normalizeDate($task->creation_date) ?> </span>назад
