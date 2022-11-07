@@ -23,7 +23,7 @@ use yii\helpers\Html;
     </p>
     <div class="footer-task">
         <p class="info-text town-text">
-            <?= Html::encode($task->city->name) ?>
+            <?= Html::encode($task->city->name ?? 'Без локации') ?>
         </p>
         <p class="info-text category-text">
             <?= Html::encode($task->category->name) ?>

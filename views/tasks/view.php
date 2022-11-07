@@ -16,24 +16,28 @@ use phpnt\yandexMap\YandexMaps;
  * @var ActiveForm $form
  */
 
-$items = [
-    [
-        'latitude' => $task->location_lat,
-        'longitude' => $task->location_long,
-        'options' => [
-            [
-                'hintContent' => $task->city->name,
-                'balloonContentHeader' => $task->title,
-                'balloonContentBody' => $task->details,
-                'balloonContentFooter' => 'TaskForce, 2022'
-            ],
-            [
-                'preset' => 'islands#icon',
-                'iconColor' => '#19a111'
+$items = [];
+
+if ($task->city_id && $task->location) {
+    $items = [
+        [
+            'latitude' => $task->location_lat,
+            'longitude' => $task->location_long,
+            'options' => [
+                [
+                    'hintContent' => $task->city->name,
+                    'balloonContentHeader' => $task->title,
+                    'balloonContentBody' => $task->details,
+                    'balloonContentFooter' => 'TaskForce, 2022'
+                ],
+                [
+                    'preset' => 'islands#icon',
+                    'iconColor' => '#19a111'
+                ]
             ]
         ]
-    ]
-];
+    ];
+}
 
 $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
 ?>
