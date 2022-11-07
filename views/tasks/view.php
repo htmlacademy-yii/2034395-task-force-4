@@ -1,12 +1,12 @@
 <?php
 
-use app\models\Task;
+use app\helpers\MainHelpers;
 use app\models\CreateResponseForm;
 use app\models\EndTaskForm;
-use yii\helpers\Html;
-use app\helpers\MainHelpers;
-use yii\widgets\ActiveForm;
+use app\models\Task;
 use phpnt\yandexMap\YandexMaps;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
@@ -46,7 +46,9 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
     <div class="left-column">
         <div class="head-wrapper">
             <h3 class="head-main"><?= Html::encode($task->title) ?></h3>
-            <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
+            <?php if ($task->budget > 0): ?>
+                <p class="price price--big"><?= Html::encode($task->budget) ?> ₽</p>
+            <?php endif; ?>
         </div>
         <p class="task-description"><?= Html::encode($task->details) ?></p>
         <?php if ($task->status === Task::STATUS_NEW && Yii::$app->user->identity->is_executor && !Yii::$app->user->identity->getIsUserAcceptedTask($task->id)): ?>
