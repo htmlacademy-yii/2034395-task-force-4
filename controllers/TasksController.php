@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\AccessControl;
@@ -63,23 +64,29 @@ class TasksController extends Controller
      */
     public function actionIndex(): Response|string
     {
-        $tasks = Task::find()
-            ->where(['status' => Task::STATUS_NEW])
-            ->limit(5)
-            ->orderBy(['id' => SORT_DESC])
-            ->all();
+        $query = Task::find();
+
+        $query->andFilterWhere(['status' => Task::STATUS_NEW]);
+
         $categories = Category::find()->all();
         $filterForm = new TasksFilterForm();
 
         if ($filterForm->load($this->request->post()) && $filterForm->validate()) {
-            $tasks = $filterForm->filter();
+            $query = $filterForm->filter();
         }
 
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 5,
+            ]
+        ]);
+
         return $this->render('index', [
-            'tasks' => $tasks,
             'categories' => $categories,
             'filterForm' => $filterForm,
             'additionalParameters' => self::ADDITIONAL_PARAMETERS,
+            'dataProvider' => $dataProvider
         ]);
     }
 

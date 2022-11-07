@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\base\Model;
+use yii\db\ActiveQuery;
 
 class TasksFilterForm extends Model
 {
@@ -34,21 +35,22 @@ class TasksFilterForm extends Model
     }
 
     /**
-     * Возвращает массив заданий, фильтруя их, исходя из заданных параметров
+     * Возвращает отфильтрованный запрос для отображения заданий
      *
-     * @return array
+     * @return ActiveQuery
      */
-    public function filter(): array
+    public function filter(): ActiveQuery
     {
-        $tasks = Task::find()->where(['status' => Task::STATUS_NEW]);
+        $query = Task::find();
+        $query->andFilterWhere(['status' => Task::STATUS_NEW]);
 
         if (!empty($this->categoryIds)) {
-            $tasks = $tasks->andWhere(['category_id' => $this->categoryIds]);
+            $query->andFilterWhere(['category_id' => $this->categoryIds]);
         }
 
         if (!empty($this->additional)) {
             foreach ($this->additional as $condition) {
-                $tasks = $tasks->andWhere($condition);
+                $query->andFilterWhere($condition);
             }
         }
 
@@ -56,11 +58,9 @@ class TasksFilterForm extends Model
             $timestamp = strtotime($this->period);
             $datetime = date("Y-m-d H:i:s", $timestamp);
 
-            $tasks->andWhere(['>', 'creation_date', $datetime]);
+            $query->andFilterWhere(['>', 'creation_date', $datetime]);
         }
 
-        return $tasks->limit(5)
-            ->orderBy(['id' => SORT_DESC])
-            ->all();
+        return $query;
     }
 }

@@ -1,18 +1,20 @@
 <?php
 
-use app\models\Task;
 use app\models\Category;
+use app\models\Task;
 use app\models\TasksFilterForm;
-use yii\widgets\ActiveForm;
-use yii\helpers\Html;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+use yii\widgets\ListView;
 
 /**
  * @var yii\web\View $this
- * @var Task[] $tasks
  * @var Category[] $categories
  * @var TasksFilterForm $filterForm
  * @var array $additionalParameters
+ * @var ActiveDataProvider $dataProvider
  */
 
 $categoryItems = ArrayHelper::map($categories, 'id', 'name');
@@ -23,9 +25,10 @@ $this->title = 'Task Force | New Tasks';
 <main class="main-content container">
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
-        <?php foreach ($tasks as $task): ?>
-            <?= $this->render('_task.php', ['task' => $task]) ?>
-        <?php endforeach; ?>
+        <?= ListView::widget([
+            'dataProvider' => $dataProvider,
+            'itemView' => '_task',
+        ]) ?>
         <div class="pagination-wrapper">
             <ul class="pagination-list">
                 <li class="pagination-item mark">
