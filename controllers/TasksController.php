@@ -2,21 +2,19 @@
 
 namespace app\controllers;
 
+use Yii;
+use yii\web\Controller;
+use yii\web\Response;
+use yii\filters\AccessControl;
+use yii\helpers\Url;
+use app\models\Task;
+use app\models\Category;
 use app\models\CreateResponseForm;
 use app\models\CreateTaskForm;
 use app\models\EndTaskForm;
-use app\models\User;
-use Yii;
-use yii\filters\AccessControl;
-use yii\helpers\Url;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use app\models\Task;
-use app\models\Category;
 use app\models\TasksFilterForm;
-use yii\web\Response;
-use yii\web\UploadedFile;
-use yii\widgets\ActiveForm;
+use yii\db\StaleObjectException;
+use yii\web\NotFoundHttpException;
 
 class TasksController extends Controller
 {
@@ -43,12 +41,12 @@ class TasksController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'accept', 'decline'],
+                        'actions' => ['index', 'view', 'decline'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
                     [
-                        'actions' => ['create', 'owner', 'submit', 'end', 'cancelt', 'cancelr'],
+                        'actions' => ['create', 'owner', 'end', 'cancel'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
@@ -142,7 +140,7 @@ class TasksController extends Controller
         return $this->render('view', [
             'task' => $task,
             'createResponseForm' => $createResponseForm,
-            'endTaskForm' => $endTaskForm
+            'endTaskForm' => $endTaskForm,
         ]);
     }
 
@@ -161,64 +159,17 @@ class TasksController extends Controller
     }
 
     /**
-     * Меняет статус отклика на "Принят" по его идентификатору, отклоняя остальные отклики на данное задание
-     *
-     * @param int $responseId Идентификатор отклика
-     *
-     * @return Response
-     */
-    public function actionSubmit(int $responseId): Response
-    {
-        $response = \app\models\Response::findOne($responseId);
-
-        $response->submit();
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $response->task_id]));
-    }
-
-    /**
-     * Создает новый отклик на задание по его идентификатору
-     *
-     * @param int $id Идентификатор задания
-     *
-     * @return Response
-     */
-    public function actionAccept(int $id): Response
-    {
-        $response = new \app\models\Response();
-
-        $response->create();
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $id]));
-    }
-
-    /**
-     * Меняет статус отклика на "Отклонен" по его идентификатору
-     *
-     * @param int $responseId Идентификатор отклика
-     *
-     * @return Response
-     */
-    public function actionCancelr(int $responseId): Response
-    {
-        $response = \app\models\Response::findOne($responseId);
-
-        $response->cancel();
-
-        return $this->redirect(Url::to(['tasks/view', 'id' => $response->task_id]));
-    }
-
-    /**
      * Меняет статус задания на "Отменено" и отклоняет все отклики на него
      *
      * @param int $id Идентификатор задания
      *
      * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws StaleObjectException
      *
      * @return Response
-     *
      */
-    public function actionCancelt(int $id): Response
+    public function actionCancel(int $id): Response
     {
         $task = $this->find($id);
 

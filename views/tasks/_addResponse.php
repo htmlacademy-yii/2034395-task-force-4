@@ -24,7 +24,7 @@ use yii\widgets\ActiveForm;
         </p>
         <div class="addition-form pop-up--form regular-form">
             <?php $form = ActiveForm::begin([
-                'action' => ['tasks/accept', 'id' => $task->id],
+                'action' => ['response/create', 'id' => $task->id],
                 'method' => 'post',
                 'fieldConfig' => [
                     'template' => '{label}{error}{input}',

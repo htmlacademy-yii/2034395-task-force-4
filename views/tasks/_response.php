@@ -61,9 +61,9 @@ use yii\helpers\Html;
     </div>
     <?php if ($task->customer_id === Yii::$app->user->id && $response->status === Response::STATUS_NEW): ?>
         <div class="button-popup">
-            <?= Html::a('Принять', ['tasks/submit', 'responseId' => $response->id],
+            <?= Html::a('Принять', ['response/submit', 'responseId' => $response->id],
                 ['class' => 'button button--blue button--small']); ?>
-            <?= Html::a('Отказать', ['tasks/cancelr', 'responseId' => $response->id],
+            <?= Html::a('Отказать', ['response/decline', 'responseId' => $response->id],
                 ['class' => 'button button--orange button--small']); ?>
         </div>
     <?php endif; ?>

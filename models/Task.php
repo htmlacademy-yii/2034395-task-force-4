@@ -20,6 +20,8 @@ use yii\db\StaleObjectException;
  * @property int|null $executor_id
  * @property int|null $city_id
  * @property string|null $location
+ * @property float|null $location_lat
+ * @property float|null $location_long
  * @property int|null $budget
  * @property string|null $execution_date
  *
@@ -227,9 +229,7 @@ class Task extends ActiveRecord
 
         $this->status = self::STATUS_CANCELED;
 
-        if (!$this->update()) {
-            return false;
-        }
+        $this->update(false);
 
         foreach ($this->responses as $response) {
             $response->status = Response::STATUS_DECLINED;

@@ -2,6 +2,8 @@
 
 namespace TaskForce\classes\imports;
 
+require 'WrongFilenameOrPathException.php';
+
 use SplFileObject;
 use TaskForce\classes\exceptions\WrongFilenameOrPathException;
 

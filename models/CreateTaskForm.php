@@ -2,11 +2,9 @@
 
 namespace app\models;
 
+use app\helpers\MainHelpers;
 use Yii;
 use yii\base\Model;
-use yii\helpers\Console;
-use yii\web\Controller;
-use yii\web\Response;
 use yii\web\UploadedFile;
 
 class CreateTaskForm extends Model
@@ -14,7 +12,6 @@ class CreateTaskForm extends Model
     public ?string $title = null;
     public ?string $details = null;
     public ?int $category_id = null;
-    public int $city_id = 1;
     public ?string $location = null;
     public int $budget = 0;
     public ?string $execution_date = null;
@@ -30,14 +27,11 @@ class CreateTaskForm extends Model
             ['title', 'string', 'min' => 10, 'max' => 255],
             ['details', 'string', 'min' => 30, 'max' => 255],
             ['location', 'string', 'max' => 255],
-            [
-                'execution_date',
-                'safe',
-            ],
-            [['category_id', 'city_id'], 'integer'],
-            ['budget', 'integer', 'min' => 0],
+            ['location', 'validateLocation'],
+            ['execution_date', 'safe',],
+            ['category_id', 'integer'],
+            ['budget', 'integer'],
             ['category_id', 'exist', 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
-            ['city_id', 'exist', 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
             ['files', 'file', 'maxFiles' => 0]
         ];
     }
@@ -59,25 +53,57 @@ class CreateTaskForm extends Model
         ];
     }
 
+    public function validateLocation(): bool
+    {
+        $geocoder = MainHelpers::getGeocoderData($this->location);
+
+        $city = City::findOne(['name' => explode(',', $geocoder?->description)[0] ?? null]);
+
+        if (!$city) {
+            var_dump($geocoder);
+
+            $this->addError('location', 'Город не найден');
+            return false;
+        }
+
+        return true;
+    }
+
     public function create(): bool
     {
         if (!$this->validate()) {
             return false;
         }
 
+        $geocoder = MainHelpers::getGeocoderData($this->location);
+
+        $address = $geocoder?->description;
+
+        $coords = explode(' ', $geocoder?->Point->pos);
+
+        $city = City::findOne(['name' => explode(',', $address)[0] ?? null]);
+
         $task = new Task();
 
         $task->title = $this->title;
         $task->details = $this->details;
         $task->category_id = $this->category_id;
-        $task->city_id = $this->city_id;
-        $task->location = $this->location;
+
         $task->budget = $this->budget;
-        $task->execution_date = date('Y-m-d H:i:s', strtotime($this->execution_date));
+
+        if ($this->execution_date) {
+            $task->execution_date = date('Y-m-d H:i:s', strtotime($this->execution_date));
+        }
 
         $task->status = Task::STATUS_NEW;
         $task->customer_id = Yii::$app->user->id;
         $task->creation_date = date('Y-m-d H:i:s', time());
+
+        $task->location = $geocoder?->name;
+        $task->location_lat = $coords[1] ?? null;
+        $task->location_long = $coords[0] ?? null;
+
+        $task->city_id = $city?->id;
 
         $task->save(false);
 
