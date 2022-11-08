@@ -2,26 +2,68 @@
 
 namespace app\controllers;
 
+use VK\Exceptions\VKClientException;
+use VK\Exceptions\VKOAuthException;
 use Yii;
-use app\models\City;
 use app\models\User;
 use app\models\VkAuth;
-use app\models\RegistrationForm;
-use VK\Exceptions\VKApiException;
-use VK\Exceptions\VKClientException;
-use yii\db\StaleObjectException;
+use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\Response;
 
 class VkController extends Controller
 {
-    public function actionAuth(): void
+    /**
+     * {@inheritDoc}
+     */
+    public function init(): void
     {
-        $oauth = new VkAuth();
-        $oauth->auth();
+        parent::init();
+        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['?']
+                    ],
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Обращается к API Вконтакте для получения кода доступа пользователя
+     *
+     * @param string $target
+     *
+     * @return void
+     */
+    public function actionAuth(string $target = 'login'): void
+    {
+        $oauth = new VkAuth();
+        $oauth->auth($target);
+    }
+
+    /**
+     * Обращается к API Вконтакте, передавая код доступа пользователя и запрашивая его токен
+     *
+     * @param string $code
+     *
+     * @throws VKClientException
+     * @throws VKOAuthException
+     *
+     * @return Response
+     */
     public function actionRedirect(string $code): Response
     {
         $oauth = new VkAuth();
@@ -34,7 +76,7 @@ class VkController extends Controller
         $user = User::findOne(['vk_id' => $token['user_id']]);
 
         if (!$user) {
-            return $this->redirect(Url::to(['registration/index', 'token' => json_encode($token)]));
+            return $this->redirect(Url::to(['vk/auth', 'target' => 'registration']));
         }
 
         Yii::$app->user->login($user);

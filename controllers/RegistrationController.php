@@ -2,9 +2,7 @@
 
 namespace app\controllers;
 
-use app\models\User;
 use app\models\VkAuth;
-use app\models\VkRegistrationForm;
 use VK\Exceptions\VKApiException;
 use VK\Exceptions\VKClientException;
 use Yii;
@@ -48,21 +46,30 @@ class RegistrationController extends Controller
     /**
      * Возвращает страницу регистрации, обрабатывает POST запрос и создает аккаунт
      *
-     * @return Response|string
-     * @throws \Throwable
+     * @param string $code
+     *
      * @throws StaleObjectException
+     * @throws \Throwable
+     * @throws VKApiException
+     * @throws VKClientException
+     *
+     * @return Response|string
      */
-    public function actionIndex(string $token = ''): Response|string
+    public function actionIndex(string $code = ''): Response|string
     {
         $cities = City::find()->all();
 
         $model = new RegistrationForm();
 
-        if ($token) {
+        if ($code) {
             $oauth = new VkAuth();
+            $token = $oauth->getToken($code, 'registration');
 
-            $_token = json_decode($token, true);
-            $userData = $oauth->getUserData($_token);
+            if (!$token['user_id']) {
+                return $this->redirect(Url::to(['registration/index']));
+            }
+
+            $userData = $oauth->getUserData($token);
 
             if ($model->vkRegister($userData)) {
                 return $this->redirect(Url::to(['tasks/index']));

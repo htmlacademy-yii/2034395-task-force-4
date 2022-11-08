@@ -93,6 +93,7 @@ $title = match ($type) {
                 'nextPageCssClass' => 'pagination-item mark',
                 'prevPageCssClass' => 'pagination-item mark',
                 'pageCssClass' => 'pagination-item',
+                'activePageCssClass' => 'pagination-item--active',
                 'linkOptions' => [
                     'class' => 'link link--page'
                 ]

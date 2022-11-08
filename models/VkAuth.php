@@ -22,13 +22,25 @@ class VkAuth extends Model
     private array $scope = [VKOAuthUserScope::WALL, VKOAuthUserScope::EMAIL];
     private array $fields = ['city', 'email', 'photo_200_orig', 'first_name', 'bdate'];
 
-    public function auth(): void
+    /**
+     * Обращается к API Вконтакте, запрашивая переадресацию с кодом на доверенный URI
+     *
+     * @param string $target
+     *
+     * @return void
+     */
+    public function auth(string $target): void
     {
+        $redirectUri = match ($target) {
+            'login' => Url::to(['vk/redirect'], true),
+            'registration' => Url::to(['registration/index'], true)
+        };
+
         $oauth = new VKOAuth();
         $url = $oauth->getAuthorizeUrl(
             VKOAuthResponseType::CODE,
             Yii::$app->params['vkClientId'],
-            Url::to(['vk/redirect'], true),
+            $redirectUri,
             VKOAuthDisplay::POPUP,
             $this->scope,
         );
@@ -37,23 +49,41 @@ class VkAuth extends Model
     }
 
     /**
-     * @throws VKOAuthException
+     * Обращается к API Вконтакте, запрашивая токен доступа, передавая айди приложения, секретный ключ и доверенный URI
+     *
+     * @param string $code
+     * @param string $target
+     *
      * @throws VKClientException
+     * @throws VKOAuthException
+     *
+     * @return array
      */
-    public function getToken(string $code): array
+    public function getToken(string $code, string $target = 'login'): array
     {
+        $redirectUri = match ($target) {
+            'login' => Url::to(['vk/redirect'], true),
+            'registration' => Url::to(['registration/index'], true)
+        };
+
         $oauth = new VKOAuth();
         return $oauth->getAccessToken(
             Yii::$app->params['vkClientId'],
             Yii::$app->params['vkClientSecret'],
-            Url::to(['vk/redirect'], true),
+            $redirectUri,
             $code
         );
     }
 
     /**
+     * Обращается к API Вконтакте для получения пользователя по его ID
+     *
+     * @param array $token
+     *
      * @throws VKApiException
      * @throws VKClientException
+     *
+     * @return array
      */
     public function getUserData(array $token): array
     {
