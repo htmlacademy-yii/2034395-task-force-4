@@ -27,71 +27,17 @@ class VkController extends Controller
         $oauth = new VkAuth();
         $token = $oauth->getToken($code);
 
-        $userData = $oauth->getUserData($token);
-
-        if (!$userData) {
+        if (!$token['user_id']) {
             return $this->redirect(Url::to(['registration/index']));
         }
 
-        var_dump($token);
-
-        $user = User::findOne(['vk_id' => $token['user_id'] ?? null]);
+        $user = User::findOne(['vk_id' => $token['user_id']]);
 
         if (!$user) {
-            return $this->redirect(Url::to(['vk/register', 'token' => json_encode($token)]));
+            return $this->redirect(Url::to(['registration/index', 'token' => json_encode($token)]));
         }
 
         Yii::$app->user->login($user);
         return $this->redirect(Url::to(['tasks/index']));
-    }
-
-    /**
-     * @param string $token
-     *
-     * @throws VKApiException
-     * @throws VKClientException
-     * @throws \Throwable
-     * @throws StaleObjectException
-     *
-     * @return Response
-     */
-    public function actionRegister(string $token): Response
-    {
-        $token = json_decode($token, true);
-        $oauth = new VkAuth();
-        $userData = $oauth->getUserData($token);
-
-        if (!$userData) {
-            return $this->redirect(Url::to(['registration/index']));
-        }
-
-        $model = new RegistrationForm();
-
-        $model->scenario = 'vk';
-
-        if ($model->load($this->request->post())) {
-            $model->username = $userData['first_name'] ?? null;
-            $model->email = $token['email'] ?? null;
-
-            if ($userData['bdate']) {
-                $model->birthday = date('Y-m-d H:i:s', strtotime($userData['bdate']));
-            }
-
-            if ($userData['city']) {
-                $city = City::findOne(['name' => $userData['city']['title']]);
-
-                $model->city_id =  $city->id;
-            }
-
-            if ($model->register()) {
-                $user = User::findOne(['email' => $token['email' ?? null]]);
-
-                Yii::$app->user->login($user);
-
-                return $this->redirect(Url::to(['tasks/index']));
-            }
-        }
-
-        return $this->redirect(Url::to(['registration/index']));
     }
 }

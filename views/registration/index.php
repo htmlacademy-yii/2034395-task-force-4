@@ -47,7 +47,6 @@ $this->title = 'Task Force | Registration';
                     ->label('Город');
                 ?>
             </div>
-            <?php if ($model->scenario === $model::SCENARIO_DEFAULT): ?>
             <div class="half-wrapper">
                 <?=
                 $form->field($model, 'password')
@@ -62,7 +61,6 @@ $this->title = 'Task Force | Registration';
                     ->label('Повтор пароля');
                 ?>
             </div>
-            <?php endif; ?>
             <?=
             $form->field($model, 'is_executor', ['template' => "{input}"])
                 ->checkbox([

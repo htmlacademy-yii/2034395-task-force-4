@@ -12,6 +12,7 @@ use VK\OAuth\Scopes\VKOAuthUserScope;
 use VK\OAuth\VKOAuth;
 use VK\OAuth\VKOAuthDisplay;
 use VK\OAuth\VKOAuthResponseType;
+use yii\helpers\Url;
 
 /**
  *
@@ -27,7 +28,7 @@ class VkAuth extends Model
         $url = $oauth->getAuthorizeUrl(
             VKOAuthResponseType::CODE,
             Yii::$app->params['vkClientId'],
-            Yii::$app->params['vkRedirectUri'],
+            Url::to(['vk/redirect'], true),
             VKOAuthDisplay::POPUP,
             $this->scope,
         );
@@ -45,7 +46,7 @@ class VkAuth extends Model
         return $oauth->getAccessToken(
             Yii::$app->params['vkClientId'],
             Yii::$app->params['vkClientSecret'],
-            Yii::$app->params['vkRedirectUri'],
+            Url::to(['vk/redirect'], true),
             $code
         );
     }

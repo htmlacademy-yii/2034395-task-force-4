@@ -52,13 +52,45 @@ class RegistrationController extends Controller
      * @throws \Throwable
      * @throws StaleObjectException
      */
-    public function actionIndex(): Response|string
+    public function actionIndex(string $token = ''): Response|string
     {
         $cities = City::find()->all();
 
         $model = new RegistrationForm();
 
-        $model->scenario = 'default';
+        if ($token) {
+            $oauth = new VkAuth();
+
+            $_token = json_decode($token, true);
+            $userData = $oauth->getUserData($_token);
+
+            $city = City::findOne(['name' => $userData['city']['title'] ?? null]);
+
+            $user = new User();
+
+            $user->vk_id = $userData['id'] ?? null;
+            $user->username = $userData['first_name'] ?? null;
+            $user->email = $userData['email'] ?? null;
+            $user->status = User::STATUS_FREE;
+            $user->details = $userData['about'] ?? null;
+            $user->avatar_url = $userData['photo_200_orig'];
+            $user->is_executor = 1;
+
+            if ($city) {
+                $user->city_id = $city->id;
+            }
+
+            $user->birthday = $userData['bdate'] ?? null;
+            $user->registration_date = date('Y-m-d H:i:s', time());
+
+            $user->auth_key = Yii::$app->security->generateRandomString();
+            $user->access_token = Yii::$app->security->generateRandomString();
+
+            if ($user->save(false)) {
+                Yii::$app->user->login($user);
+                return $this->redirect(Url::to(['tasks/index']));
+            }
+        }
 
         if ($model->load($this->request->post()) && $model->register()) {
             return $this->redirect(Url::to(['tasks/index']));
