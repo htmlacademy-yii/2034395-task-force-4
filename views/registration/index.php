@@ -10,7 +10,6 @@ use yii\helpers\ArrayHelper;
 /**
  * @var yii\web\View $this
  * @var RegistrationForm $model
- * @var VkRegistrationForm $vkModel
  * @var City[] $cities
  * @var ActiveForm $form
  */
@@ -48,6 +47,7 @@ $this->title = 'Task Force | Registration';
                     ->label('Город');
                 ?>
             </div>
+            <?php if ($model->scenario === $model::SCENARIO_DEFAULT): ?>
             <div class="half-wrapper">
                 <?=
                 $form->field($model, 'password')
@@ -62,14 +62,7 @@ $this->title = 'Task Force | Registration';
                     ->label('Повтор пароля');
                 ?>
             </div>
-            <a
-                href="#"
-                style="text-decoration: none; font-size: 1.2rem; color: black; border-bottom: 1px solid black"
-                class="action-btn"
-                data-action="reg_vk"
-            >
-                Продолжить через ВКонтакте
-            </a>
+            <?php endif; ?>
             <?=
             $form->field($model, 'is_executor', ['template' => "{input}"])
                 ->checkbox([
@@ -83,39 +76,3 @@ $this->title = 'Task Force | Registration';
         </div>
     </div>
 </main>
-
-<section class="pop-up pop-up--reg_vk pop-up--close">
-    <div class="pop-up--wrapper">
-        <h4>Регистрация через ВКонтакте</h4>
-        <p class="pop-up-text">
-            Вы собираетесь зарегистрироваться на сайте, используя публичную информацию Вашей страницы ВКонтакте.
-        </p>
-        <div class="addition-form pop-up--form regular-form">
-            <?php $form = ActiveForm::begin([
-                'action' => ['auth/vk'],
-                'method' => 'post',
-                'fieldConfig' => [
-                    'template' => '{label}{error}{input}',
-                ],
-            ]); ?>
-
-            <?=
-            $form->field($vkModel, 'is_executor', ['template' => "{input}"])
-                ->checkbox([
-                    'checked' => true,
-                    'label' => 'я собираюсь откликаться на заказы',
-                    'labelOptions' => ['class' => 'control-label checkbox-label']
-                ])
-                ->label('Собираетесь ли вы откликаться на заказы?');
-            ?>
-
-            <?= Html::submitInput('Продолжить', ['class' => 'button button--pop-up button--blue']) ?>
-            <?php ActiveForm::end(); ?>
-        </div>
-        <div class="button-container">
-            <button class="button--close" type="button">Закрыть окно</button>
-        </div>
-    </div>
-</section>
-
-<div class="overlay"></div>

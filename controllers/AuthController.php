@@ -55,25 +55,4 @@ class AuthController extends Controller
 
         return $this->goHome();
     }
-
-    public function actionVk(): void
-    {
-        $oauth = new VkAuth();
-        $oauth->auth();
-    }
-
-    public function actionOauth(string $code): Response
-    {
-        $oauth = new VkAuth();
-        $token = $oauth->getToken($code);
-
-        $user = User::findOne(['email' => $token['email'] ?? null]);
-
-        if (!$user) {
-            return $this->redirect(Url::to(['registration/vk', 'token' => json_encode($token)]));
-        }
-
-        Yii::$app->user->login($user);
-        return $this->redirect(Url::to(['tasks/index']));
-    }
 }

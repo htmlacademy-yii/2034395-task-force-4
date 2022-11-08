@@ -8,6 +8,8 @@ use yii\db\StaleObjectException;
 
 class RegistrationForm extends Model
 {
+    const SCENARIO_VK = 'vk';
+
     public ?string $username = null;
     public ?string $email = null;
     public ?int $city_id = null;
@@ -21,13 +23,34 @@ class RegistrationForm extends Model
     public function rules(): array
     {
         return [
-            [['username', 'email', 'city_id', 'password', 'password_repeat', 'is_executor'], 'required'],
-            [['username', 'password', 'password_repeat'], 'string', 'max' => 255],
+            [
+                ['username', 'email', 'city_id', 'password', 'password_repeat', 'is_executor'],
+                'required',
+                'on' => self::SCENARIO_DEFAULT
+            ],
+            [
+                ['username', 'is_executor'],
+                'required',
+                'on' => self::SCENARIO_VK
+            ],
+            [
+                ['username', 'password', 'password_repeat'],
+                'string',
+                'max' => 255,
+                'on' => self::SCENARIO_DEFAULT
+            ],
+            ['username', 'string', 'max' => 255, 'on' => self::SCENARIO_VK],
             ['email', 'email'],
             ['email', 'unique', 'targetClass' => User::class, 'targetAttribute' => 'email'],
             ['is_executor', 'boolean'],
-            ['city_id', 'exist', 'targetClass' => City::class, 'targetAttribute' => ['city_id' => 'id']],
-            ['password_repeat', 'compare', 'compareAttribute' => 'password'],
+            [
+                'city_id',
+                'exist',
+                'targetClass' => City::class,
+                'targetAttribute' => ['city_id' => 'id'],
+                'on' => self::SCENARIO_DEFAULT
+            ],
+            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'on' => self::SCENARIO_DEFAULT],
         ];
     }
 

@@ -57,7 +57,8 @@ class RegistrationController extends Controller
         $cities = City::find()->all();
 
         $model = new RegistrationForm();
-        $vkModel = new VkRegistrationForm();
+
+        $model->scenario = 'default';
 
         if ($model->load($this->request->post()) && $model->register()) {
             return $this->redirect(Url::to(['tasks/index']));
@@ -69,50 +70,7 @@ class RegistrationController extends Controller
 
         return $this->render('index', [
             'model' => $model,
-            'vkModel' => $vkModel,
             'cities' => $cities
         ]);
-    }
-
-    /**
-     * @throws VKApiException
-     * @throws VKClientException
-     */
-    public function actionVk(string $token): Response
-    {
-        $token = json_decode($token, true);
-        $oauth = new VkAuth();
-        $userData = $oauth->getUserData($token);
-
-        if (!$userData) {
-            return $this->redirect(Url::to(['registration/index']));
-        }
-
-        $model = new VkRegistrationForm();
-
-        if ($model->load($this->request->post())) {
-            $model->username = $userData['first_name'] ?? null;
-            $model->email = $token['email'] ?? null;
-
-            if ($userData['bdate']) {
-                $model->birthday = date('Y-m-d H:i:s', strtotime($userData['bdate']));
-            }
-
-            if ($userData['city']) {
-                $city = City::findOne(['name' => $userData['city']['title']]);
-
-                $model->city_id =  $city->id;
-            }
-
-            if ($model->register()) {
-                $user = User::findOne(['email' => $token['email' ?? null]]);
-
-                Yii::$app->user->login($user);
-
-                return $this->redirect(Url::to(['tasks/index']));
-            }
-        }
-
-        return $this->redirect(Url::to(['registration/index']));
     }
 }

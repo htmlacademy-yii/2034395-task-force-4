@@ -37,7 +37,7 @@ $this->title = 'Task Force | Login';
     ?>
     <?= Html::a(
          Html::img('@web/img/vk-logo.svg', ['style' => 'width: 50px; height: 50px;', 'alt' => 'Login via VK']),
-         ['auth/vk'],
+         ['vk/auth'],
     ); ?>
     <?= Html::submitButton('Войти', ['class' => 'button']) ?>
     <?php ActiveForm::end(); ?>

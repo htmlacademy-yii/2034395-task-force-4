@@ -9,5 +9,5 @@ return [
     'dbUsername' => 'root',
     'vkClientId' => 51470333,
     'vkClientSecret' => '5QTWBEggmeKe7qpAONLF',
-    'vkRedirectUri' => 'http://taskforce/auth/oauth',
+    'vkRedirectUri' => 'http://taskforce/vk/redirect',
 ];
