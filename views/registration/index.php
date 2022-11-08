@@ -61,6 +61,10 @@ $this->title = 'Task Force | Registration';
                     ->label('Повтор пароля');
                 ?>
             </div>
+            <?= Html::a(
+                Html::img('@web/img/vk-logo.svg', ['style' => 'width: 50px; height: 50px;', 'alt' => 'Login via VK']),
+                ['vk/auth'],
+            ); ?>
             <?=
             $form->field($model, 'is_executor', ['template' => "{input}"])
                 ->checkbox([
