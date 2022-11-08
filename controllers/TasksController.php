@@ -58,6 +58,20 @@ class TasksController extends Controller
     }
 
     /**
+     * Возвращает задание по идентификатору, либо ошибку, если такое задание не найдено
+     *
+     * @param int $id Идентификатор задания
+     *
+     * @throws NotFoundHttpException
+     *
+     * @return Task
+     */
+    public function find(int $id): Task
+    {
+        return Task::findOne($id) ?? throw new NotFoundHttpException();
+    }
+
+    /**
      * Возвращает страницу просмотра заданий, предварительно фильтруя их
      *
      * @return Response|string
@@ -103,13 +117,28 @@ class TasksController extends Controller
      */
     public function actionOwner(string $type, array $status): Response|string
     {
-        $tasks = Task::findAll(['customer_id' => Yii::$app->user->id, 'status' => $status]);
+        $query = Task::find();
 
-        return $this->render('owner', ['tasks' => $tasks, 'type' => $type]);
+        $query->andFilterWhere(['customer_id' => Yii::$app->user->id]);
+        $query->andFilterWhere(['status' => $status]);
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'sort' => [
+                'defaultOrder' => ['id' => SORT_DESC],
+            ],
+            'pagination' => [
+                'pageSize' => 5,
+            ]
+        ]);
+
+        return $this->render('owner', ['dataProvider' => $dataProvider, 'type' => $type]);
     }
 
     /**
      * Возвращает страницу создания задания, обрабатывает пришедший POST запрос
+     *
+     * @throws NotFoundHttpException;
      *
      * @return Response|string
      */
@@ -121,6 +150,10 @@ class TasksController extends Controller
 
         if ($model->load($this->request->post()) && $model->create()) {
             $lastTask = Task::find()->orderBy('id DESC')->one();
+
+            if (!$lastTask) {
+                throw new NotFoundHttpException();
+            }
 
             return $this->redirect(Url::to(['tasks/view', 'id' => $lastTask->id]));
         }
@@ -152,20 +185,6 @@ class TasksController extends Controller
             'createResponseForm' => $createResponseForm,
             'endTaskForm' => $endTaskForm,
         ]);
-    }
-
-    /**
-     * Возвращает задание по идентификатору, либо ошибку, если такое задание не найдено
-     *
-     * @param int $id Идентификатор задания
-     *
-     * @throws NotFoundHttpException
-     *
-     * @return Task
-     */
-    public function find(int $id): Task
-    {
-        return Task::findOne($id) ?? throw new NotFoundHttpException();
     }
 
     /**
@@ -213,9 +232,10 @@ class TasksController extends Controller
      * @param int $id Идентификатор задания
      *
      * @throws NotFoundHttpException
+     * @throws StaleObjectException
+     * @throws \Throwable
      *
      * @return Response
-     *
      */
     public function actionDecline(int $id): Response
     {

@@ -65,6 +65,10 @@ class ResponseController extends Controller
     {
         $response = \app\models\Response::findOne($responseId);
 
+        if (!$response) {
+            throw new NotFoundHttpException();
+        }
+
         $response->submit();
 
         return $this->redirect(Url::to(['tasks/view', 'id' => $response->task_id]));
@@ -100,6 +104,10 @@ class ResponseController extends Controller
     public function actionDecline(int $responseId): Response
     {
         $response = \app\models\Response::findOne($responseId);
+
+        if (!$response) {
+            throw new NotFoundHttpException();
+        }
 
         $response->cancel();
 

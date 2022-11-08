@@ -28,7 +28,7 @@ $this->title = 'Task Force | New Tasks';
             'dataProvider' => $dataProvider,
             'itemView' => '_task',
             'layout' => "{items}\n<div class='pagination-wrapper'>{pager}</div>",
-            'emptyText' => 'Новых заданий больше нет.',
+            'emptyText' => 'Новых заданий пока нет.',
             'pager' => [
                 'hideOnSinglePage' => true,
                 'maxButtonCount' => 3,
@@ -44,7 +44,6 @@ $this->title = 'Task Force | New Tasks';
                     'class' => 'link link--page'
                 ]
             ],
-            'sorter' => 'asc'
         ]) ?>
     </div>
     <div class="right-column">
