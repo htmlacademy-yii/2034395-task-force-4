@@ -9,7 +9,6 @@ actionButtons.forEach(function (el) {
     el.addEventListener('click', function (evt) {
         const modalType = evt.target.dataset.action;
         const modal = document.querySelector('.pop-up--' + modalType);
-        console.log(evt.target.dataset);
         modal.classList.remove('pop-up--close');
         modal.classList.add('pop-up--open');
         overlay.classList.add('db');
