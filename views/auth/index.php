@@ -35,6 +35,10 @@ $this->title = 'Task Force | Login';
         ->passwordInput()
         ->label('Пароль');
     ?>
+    <?= Html::a(
+         Html::img('@web/img/vk-logo.svg', ['style' => 'width: 50px; height: 50px;', 'alt' => 'Login via VK']),
+         ['vk/auth'],
+    ); ?>
     <?= Html::submitButton('Войти', ['class' => 'button']) ?>
     <?php ActiveForm::end(); ?>
     <button class="form-modal-close" type="button">Закрыть</button>

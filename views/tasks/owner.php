@@ -2,10 +2,12 @@
 
 use app\models\Task;
 use yii\helpers\Html;
+use yii\data\ActiveDataProvider;
+use yii\widgets\ListView;
 
 /**
  * @var yii\web\View $this
- * @var Task[] $tasks
+ * @var ActiveDataProvider $dataProvider
  * @var string $type
  */
 
@@ -75,8 +77,27 @@ $title = match ($type) {
             <?= Html::encode($title); ?>
         </h3>
 
-        <?php foreach (array_reverse($tasks) as $task): ?>
-            <?= $this->render('_task', ['task' => $task]); ?>
-        <?php endforeach; ?>
+        <?= ListView::widget([
+            'dataProvider' => $dataProvider,
+            'itemView' => '_task',
+            'layout' => "{items}\n<div class='pagination-wrapper'>{pager}</div>",
+            'emptyText' => 'У вас нет заданий такого типа.',
+            'pager' => [
+                'hideOnSinglePage' => true,
+                'maxButtonCount' => 3,
+                'options' => [
+                    'class' => 'pagination-list',
+                ],
+                'nextPageLabel' => '',
+                'prevPageLabel' => '',
+                'nextPageCssClass' => 'pagination-item mark',
+                'prevPageCssClass' => 'pagination-item mark',
+                'pageCssClass' => 'pagination-item',
+                'activePageCssClass' => 'pagination-item--active',
+                'linkOptions' => [
+                    'class' => 'link link--page'
+                ]
+            ],
+        ]) ?>
     </div>
 </main>

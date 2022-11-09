@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use app\models\LoginForm;
@@ -16,16 +17,45 @@ use yii\widgets\ActiveForm;
 class AuthController extends Controller
 {
     /**
+     * {@inheritDoc}
+     */
+    public function init(): void
+    {
+        parent::init();
+        Yii::$app->user->loginUrl = ['auth/index'];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['?']
+                    ],
+                    [
+                        'actions' => ['logout'],
+                        'allow' => true,
+                        'roles' => ['@']
+                    ],
+                ]
+            ]
+        ];
+    }
+
+    /**
      * Возвращает страницу авторизации, обрабатывает AJAX запрос, а также логинит пользователя на сайт
      *
      * @return Response|string|array
      */
     public function actionIndex(): Response|string|array
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->redirect(Url::to(['tasks/index']));
-        }
-
         $model = new LoginForm();
 
         if ($this->request->isAjax && $model->load($this->request->post())) {

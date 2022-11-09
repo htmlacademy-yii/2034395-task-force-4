@@ -12,6 +12,7 @@ use yii\web\IdentityInterface;
  * This is the model class for table "user".
  *
  * @property int $id
+ * @property int $vk_id
  * @property string|null $status
  * @property string|null $email
  * @property string|null $username

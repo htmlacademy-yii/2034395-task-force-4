@@ -5,7 +5,6 @@ namespace app\helpers;
 use Yii;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use yii\helpers\StringHelper;
 
 class MainHelpers
 {

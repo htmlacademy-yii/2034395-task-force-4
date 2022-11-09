@@ -1,18 +1,19 @@
 <?php
 
-use app\models\Task;
 use app\models\Category;
 use app\models\TasksFilterForm;
-use yii\widgets\ActiveForm;
-use yii\helpers\Html;
+use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+use yii\widgets\ListView;
 
 /**
  * @var yii\web\View $this
- * @var Task[] $tasks
  * @var Category[] $categories
  * @var TasksFilterForm $filterForm
  * @var array $additionalParameters
+ * @var ActiveDataProvider $dataProvider
  */
 
 $categoryItems = ArrayHelper::map($categories, 'id', 'name');
@@ -23,28 +24,28 @@ $this->title = 'Task Force | New Tasks';
 <main class="main-content container">
     <div class="left-column">
         <h3 class="head-main head-task">Новые задания</h3>
-        <?php foreach ($tasks as $task): ?>
-            <?= $this->render('_task.php', ['task' => $task]) ?>
-        <?php endforeach; ?>
-        <div class="pagination-wrapper">
-            <ul class="pagination-list">
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">1</a>
-                </li>
-                <li class="pagination-item pagination-item--active">
-                    <a href="#" class="link link--page">2</a>
-                </li>
-                <li class="pagination-item">
-                    <a href="#" class="link link--page">3</a>
-                </li>
-                <li class="pagination-item mark">
-                    <a href="#" class="link link--page"></a>
-                </li>
-            </ul>
-        </div>
+        <?= ListView::widget([
+            'dataProvider' => $dataProvider,
+            'itemView' => '_task',
+            'layout' => "{items}\n<div class='pagination-wrapper'>{pager}</div>",
+            'emptyText' => 'Новых заданий пока нет.',
+            'pager' => [
+                'hideOnSinglePage' => true,
+                'maxButtonCount' => 3,
+                'options' => [
+                    'class' => 'pagination-list',
+                ],
+                'nextPageLabel' => '',
+                'prevPageLabel' => '',
+                'nextPageCssClass' => 'pagination-item mark',
+                'prevPageCssClass' => 'pagination-item mark',
+                'pageCssClass' => 'pagination-item',
+                'activePageCssClass' => 'pagination-item--active',
+                'linkOptions' => [
+                    'class' => 'link link--page'
+                ]
+            ],
+        ]) ?>
     </div>
     <div class="right-column">
         <div class="right-card black">

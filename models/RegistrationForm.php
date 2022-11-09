@@ -79,4 +79,35 @@ class RegistrationForm extends Model
 
         return false;
     }
+
+    public function vkRegister(array $data): bool
+    {
+        $city = City::findOne(['name' => $userData['city']['title'] ?? null]);
+
+        $user = new User();
+
+        $user->vk_id = $data['id'] ?? null;
+        $user->username = $data['first_name'] ?? null;
+        $user->email = $data['email'] ?? null;
+        $user->status = User::STATUS_FREE;
+        $user->details = $data['about'] ?? null;
+        $user->avatar_url = $data['photo_200_orig'];
+        $user->is_executor = 1;
+
+        if ($city) {
+            $user->city_id = $city->id;
+        }
+
+        $user->birthday = $data['bdate'] ?? null;
+        $user->registration_date = date('Y-m-d H:i:s', time());
+
+        $user->auth_key = Yii::$app->security->generateRandomString();
+        $user->access_token = Yii::$app->security->generateRandomString();
+
+        if ($user->save(false)) {
+            return Yii::$app->user->login($user);
+        }
+
+        return false;
+    }
 }

@@ -25,7 +25,8 @@
         "yiisoft/yii2-symfonymailer": "~2.0.3",
         "devgroup/yii2-dropzone": "*",
         "guzzlehttp/guzzle": "@dev",
-        "phpnt/yandex-map": "^0.0.3"
+        "phpnt/yandex-map": "^0.0.3",
+        "vkcom/vk-php-sdk": "^5.101"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
