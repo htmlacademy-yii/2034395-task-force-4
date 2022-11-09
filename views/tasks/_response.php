@@ -30,7 +30,7 @@ use yii\helpers\Html;
         Html::a
         (
             Html::encode($response->executor->username),
-            ['profile/view', 'id' => $response->executor_id],
+            ['profile/index', 'id' => $response->executor_id],
             ['class' => 'link link--block link--big']
         );
         ?>

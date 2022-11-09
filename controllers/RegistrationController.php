@@ -22,7 +22,6 @@ class RegistrationController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**
@@ -38,7 +37,10 @@ class RegistrationController extends Controller
                         'allow' => true,
                         'roles' => ['?']
                     ],
-                ]
+                ],
+                'denyCallback' => function ($rule, $action) {
+                    Yii::$app->response->redirect(['tasks/index']);
+                }
             ]
         ];
     }

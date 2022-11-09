@@ -1,16 +1,16 @@
 <?php
 
-/**
- * @var yii\web\View $this
- * @var string $content
- */
-
 use app\assets\AppAsset;
 use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use app\models\Task;
 use app\models\City;
+
+/**
+ * @var yii\web\View $this
+ * @var string $content
+ */
 
 $user = Yii::$app->user->identity;
 
@@ -98,7 +98,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                         'alt' => 'Аватар'
                     ]
                 ),
-                Url::to(['profile/index'])
+                Url::to(['profile/index', 'id' => $user->id])
             );
             ?>
             <div class="user-menu">
