@@ -1,6 +1,6 @@
 <?php
 
-use app\helpers\MainHelpers;
+use app\helpers\NormalizeHelpers;
 use app\models\CreateResponseForm;
 use app\models\EndTaskForm;
 use app\models\Task;
@@ -107,7 +107,7 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                 <dt>Категория</dt>
                 <dd><?= $task->category->name ?></dd>
                 <dt>Дата публикации</dt>
-                <dd><?= MainHelpers::normalizeDate($task->creation_date) ?> назад</dd>
+                <dd><?= NormalizeHelpers::normalizeDate($task->creation_date) ?> назад</dd>
                 <?php if ($task->execution_date): ?>
                     <dt>Срок выполнения</dt>
                     <dd><?= date('d M, H:i', strtotime($task->execution_date)) ?></dd>
@@ -124,9 +124,9 @@ $this->title = Html::encode("Task Force | $task->title ($task->budget ₽)");
                         <?php $file = $taskFile->file ?>
                         <li class="enumeration-item">
                             <a href="<?= $file->url ?>" target="_blank" class="link link--block link--clip">
-                                <?= MainHelpers::getFileNameFromUrl($file->url) ?>
+                                <?= NormalizeHelpers::getFileNameFromUrl($file->url) ?>
                             </a>
-                            <p class="file-size"><?= MainHelpers::normalizeFileSize($file->size) ?></p>
+                            <p class="file-size"><?= NormalizeHelpers::normalizeFileSize($file->size) ?></p>
                         </li>
                     <?php endforeach; ?>
                 </ul>

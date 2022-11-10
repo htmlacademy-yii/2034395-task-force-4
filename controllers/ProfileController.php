@@ -2,14 +2,11 @@
 
 namespace app\controllers;
 
-use Yii;
 use yii\filters\AccessControl;
-use yii\web\Controller;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use app\models\User;
 
-class ProfileController extends Controller
+class ProfileController extends AuthRequiredController
 {
     /**
      * {@inheritDoc}
@@ -17,7 +14,6 @@ class ProfileController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**

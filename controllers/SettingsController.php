@@ -7,12 +7,11 @@ use app\models\UserCategory;
 use Yii;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
-use yii\web\Controller;
 use yii\web\Response;
 use yii\helpers\Url;
 use app\models\ChangeUserDataForm;
 
-class SettingsController extends Controller
+class SettingsController extends AuthRequiredController
 {
     /**
      * {@inheritDoc}
@@ -20,7 +19,6 @@ class SettingsController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**

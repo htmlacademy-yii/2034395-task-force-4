@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use yii\db\Query;
 use yii\db\StaleObjectException;
 use yii\web\UploadedFile;
 
@@ -35,7 +36,7 @@ class ChangeUserDataForm extends Model
             ['phone', 'string', 'max' => 11],
             ['telegram', 'string', 'max' => 64],
             ['email', 'email'],
-            ['email', 'validateEmail'],
+            ['email', 'unique', 'targetClass' => User::class, 'filter' => ['<>', 'id', Yii::$app->user->id]],
             ['avatar', 'file', 'maxFiles' => 1],
             ['details', 'string'],
             [['birthday', 'categories'], 'safe'],
@@ -63,28 +64,6 @@ class ChangeUserDataForm extends Model
             'details' => 'Информация о себе',
             'categories' => 'Специализации'
         ];
-    }
-
-    /**
-     * Валидация почтового адреса для изменения данных аккаунта
-     *
-     * @return bool
-     */
-    public function validateEmail(): bool
-    {
-        $user = User::findOne(['email' => $this->email]);
-
-        if ($user->id === Yii::$app->user->id) {
-            return true;
-        }
-
-        if (!$user) {
-            return true;
-        }
-
-
-        $this->addError('email', 'Вы не можете использовать данный Email.');
-        return false;
     }
 
     /**
@@ -122,23 +101,12 @@ class ChangeUserDataForm extends Model
             $userCategory->save();
         }
 
-        $file = UploadedFile::getInstance($this, 'avatar');
+        $file = new File();
 
-        if ($file) {
-            $newFile = new File();
-            $extension = $file->getExtension();
+        $fileData = UploadedFile::getInstance($this, 'avatar');
 
-            $name = uniqId('upload') . ".$extension";
-
-            $file->saveAs("@webroot/uploads/$name");
-
-            $newFile->url = "/uploads/$name";
-            $newFile->type = $extension;
-            $newFile->size = $file->size;
-
-            $newFile->save();
-
-            $user->avatar_url = $newFile->url;
+        if ($fileData && $file->upload($fileData)) {
+            $user->avatar_url = $file->url;
         }
 
         if ($this->password && $user->password) {

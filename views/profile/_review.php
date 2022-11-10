@@ -1,7 +1,7 @@
 <?php
 
 use yii\helpers\Html;
-use app\helpers\MainHelpers;
+use app\helpers\NormalizeHelpers;
 use app\models\Review;
 
 /**
@@ -40,7 +40,7 @@ use app\models\Review;
             <?php endfor; ?>
         </div>
         <p class="info-text">
-            <span class="current-time"><?= MainHelpers::normalizeDate($review->creation_date) ?> </span>назад
+            <span class="current-time"><?= NormalizeHelpers::normalizeDate($review->creation_date) ?> </span>назад
         </p>
     </div>
 </div>

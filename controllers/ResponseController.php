@@ -6,7 +6,6 @@ use Yii;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
-use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -14,7 +13,7 @@ use yii\web\Response;
  * @var $this Yii
  */
 
-class ResponseController extends Controller
+class ResponseController extends AuthRequiredController
 {
     /**
      * {@inheritdoc}
@@ -22,7 +21,6 @@ class ResponseController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**

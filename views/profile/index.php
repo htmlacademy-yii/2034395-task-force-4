@@ -1,6 +1,6 @@
 <?php
 
-use app\helpers\MainHelpers;
+use app\helpers\NormalizeHelpers;
 use app\models\User;
 use yii\helpers\Html;
 
@@ -64,7 +64,7 @@ $this->title = Html::encode("Task Force | $user->username");
                 <p class="bio-info">
                     <span class="town-info"><?= $user->city->name ?? 'Город не указан' ?></span>,
                     <span class="age-info"><?= Html::encode($user->age) ?></span>
-                    <?= MainHelpers::getNounPluralForm($user->age, 'год', 'года', 'лет') ?>
+                    <?= NormalizeHelpers::getNounPluralForm($user->age, 'год', 'года', 'лет') ?>
                 </p>
             </div>
         </div>

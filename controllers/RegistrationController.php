@@ -2,17 +2,17 @@
 
 namespace app\controllers;
 
+use Yii;
+use yii\web\Controller;
+use yii\web\Response;
+use app\models\City;
+use app\models\RegistrationForm;
 use app\models\VkAuth;
 use VK\Exceptions\VKApiException;
 use VK\Exceptions\VKClientException;
-use Yii;
-use app\models\City;
-use app\models\RegistrationForm;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
-use yii\web\Controller;
-use yii\web\Response;
 
 class RegistrationController extends Controller
 {

@@ -64,7 +64,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => 'fa
                     [
                         'label' => 'Мои задания',
                         'url' => ['tasks/owner', 'type' => 'new', 'status' => [Task::STATUS_NEW]],
-                        'role' => 'customer'
+                        'role' => 'executor'
                     ],
                     ['label' => 'Создать задание', 'url' => ['tasks/create'], 'role' => 'customer'],
                     ['label' => 'Настройки', 'url' => ['settings/index'], 'role' => 'executor'],
