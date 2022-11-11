@@ -1,6 +1,6 @@
 <?php
 
-use app\helpers\MainHelpers;
+use app\helpers\NormalizeHelpers;
 use app\models\Task;
 use yii\helpers\Html;
 
@@ -19,7 +19,7 @@ use yii\helpers\Html;
         <?php endif; ?>
     </div>
     <p class="info-text">
-        <span class="current-time"><?= MainHelpers::normalizeDate($model->creation_date) ?> </span>назад
+        <span class="current-time"><?= NormalizeHelpers::normalizeDate($model->creation_date) ?> </span>назад
     </p>
     <p class="task-text">
         <?= Html::encode($model->details) ?>

@@ -16,6 +16,7 @@ $this->title = 'Task Force | My Tasks';
 $title = match ($type) {
     'new' => 'Новые задания',
     'inWork' => 'Задания в процессе',
+    'outdated' => 'Просроченные задания',
     'closed' => 'Закрытые задания'
 }
 ?>
@@ -24,20 +25,22 @@ $title = match ($type) {
     <div class="left-menu">
         <h3 class="head-main head-task">Мои задания</h3>
         <ul class="side-menu-list">
-            <li class="side-menu-item <?= $type === 'new' ? 'side-menu-item--active' : '' ?>">
-                <?=
-                Html::a
-                (
-                    'Новые',
-                    [
-                        'tasks/owner',
-                        'type' => 'new',
-                        'status' => [Task::STATUS_NEW]
-                    ],
-                    ['class' => 'link link--nav']
-                );
-                ?>
-            </li>
+            <?php if (!Yii::$app->user->identity->is_executor): ?>
+                <li class="side-menu-item <?= $type === 'new' ? 'side-menu-item--active' : '' ?>">
+                    <?=
+                    Html::a
+                    (
+                        'Новые',
+                        [
+                            'tasks/owner',
+                            'type' => 'new',
+                            'status' => [Task::STATUS_NEW]
+                        ],
+                        ['class' => 'link link--nav']
+                    );
+                    ?>
+                </li>
+            <?php endif; ?>
             <li class="side-menu-item <?= $type === 'inWork' ? 'side-menu-item--active' : '' ?>">
                 <?=
                 Html::a
@@ -52,6 +55,22 @@ $title = match ($type) {
                 );
                 ?>
             </li>
+            <?php if (Yii::$app->user->identity->is_executor): ?>
+                <li class="side-menu-item <?= $type === 'outdated' ? 'side-menu-item--active' : '' ?>">
+                    <?=
+                    Html::a
+                    (
+                        'Просрочено',
+                        [
+                            'tasks/owner',
+                            'type' => 'outdated',
+                            'status' => [Task::STATUS_IN_WORK]
+                        ],
+                        ['class' => 'link link--nav']
+                    );
+                    ?>
+                </li>
+            <?php endif; ?>
             <li class="side-menu-item <?= $type === 'closed' ? 'side-menu-item--active' : '' ?>">
                 <?=
                 Html::a

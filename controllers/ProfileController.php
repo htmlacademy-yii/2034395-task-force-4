@@ -2,14 +2,11 @@
 
 namespace app\controllers;
 
-use Yii;
 use yii\filters\AccessControl;
-use yii\web\Controller;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use app\models\User;
 
-class ProfileController extends Controller
+class ProfileController extends AuthRequiredController
 {
     /**
      * {@inheritDoc}
@@ -17,7 +14,6 @@ class ProfileController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**
@@ -39,25 +35,15 @@ class ProfileController extends Controller
     }
 
     /**
-     * Возвращает страницу просмотра своего профиля
-     *
-     * @return Response|string
-     */
-    public function actionIndex(): Response|string
-    {
-        return $this->render('index');
-    }
-
-    /**
      * Возвращает страницу просмотра конкретного профиля пользователя по его идентификатору
      *
      * @param int $id Идентификатор пользователя
      *
      * @throws NotFoundHttpException
      *
-     * @return Response|string
+     * @return string
      */
-    public function actionView(int $id): Response|string
+    public function actionIndex(int $id): string
     {
         $user = User::findOne($id);
 
@@ -65,6 +51,6 @@ class ProfileController extends Controller
             throw new NotFoundHttpException();
         }
 
-        return $this->render('view', ['user' => $user]);
+        return $this->render('index', ['user' => $user]);
     }
 }

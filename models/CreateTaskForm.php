@@ -2,10 +2,14 @@
 
 namespace app\models;
 
-use app\helpers\MainHelpers;
+use GuzzleHttp\Exception\GuzzleException;
 use Yii;
+use yii\base\Exception;
 use yii\base\Model;
 use yii\web\UploadedFile;
+use app\helpers\GeocoderHelpers;
+use app\validators\LocationValidator;
+use app\validators\ExecutionDateValidator;
 
 class CreateTaskForm extends Model
 {
@@ -13,7 +17,7 @@ class CreateTaskForm extends Model
     public ?string $details = null;
     public ?int $category_id = null;
     public ?string $location = null;
-    public int $budget = 0;
+    public int|string|null $budget = 0;
     public ?string $execution_date = null;
     public array $files = [];
 
@@ -27,8 +31,8 @@ class CreateTaskForm extends Model
             ['title', 'string', 'min' => 10, 'max' => 255],
             ['details', 'string', 'min' => 30, 'max' => 255],
             ['location', 'string', 'max' => 255],
-            ['location', 'validateLocation'],
-            ['execution_date', 'safe',],
+            ['location', LocationValidator::class],
+            ['execution_date', ExecutionDateValidator::class],
             ['category_id', 'integer'],
             ['budget', 'integer'],
             ['category_id', 'exist', 'targetClass' => Category::class, 'targetAttribute' => ['category_id' => 'id']],
@@ -53,27 +57,49 @@ class CreateTaskForm extends Model
         ];
     }
 
-    public function validateLocation(): bool
+    /**
+     * Сохраняет файлы и создает запись в таблице для файлов заданий
+     *
+     * @throws Exception
+     */
+    public function saveFiles($taskId): bool
     {
-        $geocoder = MainHelpers::getGeocoderData($this->location);
+        $files = UploadedFile::getInstances($this, 'files');
 
-        $city = City::findOne(['name' => explode(',', $geocoder?->description)[0] ?? null]);
+        foreach ($files as $file) {
+            $newFile = new File();
+            if (!$newFile->upload($file)) {
+                return false;
+            }
 
-        if (!$city) {
-            $this->addError('location', 'Город не найден');
-            return false;
+            $taskFile = new TaskFile();
+
+            $taskFile->task_id = $taskId;
+            $taskFile->file_id = $newFile->id;
+
+            if (!$taskFile->save()) {
+                return false;
+            }
         }
 
         return true;
     }
 
+    /**
+     * Создает карточку с заданием и записывает ее в базу данных
+     *
+     * @throws GuzzleException
+     * @throws \Exception
+     *
+     * @return bool
+     */
     public function create(): bool
     {
         if (!$this->validate()) {
             return false;
         }
 
-        $geocoder = MainHelpers::getGeocoderData($this->location);
+        $geocoder = GeocoderHelpers::getGeocoderData($this->location);
 
         $address = $geocoder?->description;
 
@@ -87,7 +113,7 @@ class CreateTaskForm extends Model
         $task->details = $this->details;
         $task->category_id = $this->category_id;
 
-        $task->budget = $this->budget;
+        $task->budget = $this->budget ?? 0;
 
         if ($this->execution_date) {
             $task->execution_date = date('Y-m-d H:i:s', strtotime($this->execution_date));
@@ -107,27 +133,7 @@ class CreateTaskForm extends Model
 
         $task->save(false);
 
-        foreach (UploadedFile::getInstances($this, 'files') as $file) {
-            $newFile = new File();
-            $extension = $file->getExtension();
-
-            $name = uniqId('upload') . ".$extension";
-
-            $file->saveAs("@webroot/uploads/$name");
-
-            $newFile->url = "/uploads/$name";
-            $newFile->type = $extension;
-            $newFile->size = $file->size;
-
-            $newFile->save();
-
-            $taskFile = new TaskFile();
-
-            $taskFile->task_id = $task->id;
-            $taskFile->file_id = $newFile->id;
-
-            $taskFile->save();
-        }
+        $this->saveFiles($task->id);
 
         return true;
     }

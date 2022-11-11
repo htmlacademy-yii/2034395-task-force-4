@@ -3,8 +3,12 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Exception;
+use yii\base\Model;
 use yii\db\ActiveRecord;
 use yii\db\ActiveQuery;
+use yii\helpers\FileHelper;
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "file".
@@ -56,5 +60,33 @@ class File extends ActiveRecord
     public function getTaskFiles(): ActiveQuery
     {
         return $this->hasMany(TaskFile::class, ['file_id' => 'id']);
+    }
+
+    /**
+     * Загружает файл в базу данных
+     *
+     * @param UploadedFile $file
+     *
+     * @throws Exception
+     *
+     * @return bool
+     */
+    public function upload(UploadedFile $file): bool
+    {
+        if (!file_exists("@webroot/uploads")) {
+            FileHelper::createDirectory("uploads");
+        }
+
+        $extension = $file->getExtension();
+
+        $name = uniqId('upload') . ".$extension";
+
+        $file->saveAs("@webroot/uploads/$name");
+
+        $this->url = "/uploads/$name";
+        $this->type = $extension;
+        $this->size = $file->size;
+
+        return $this->save();
     }
 }

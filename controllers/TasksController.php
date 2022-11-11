@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
@@ -17,7 +16,7 @@ use app\models\TasksFilterForm;
 use yii\db\StaleObjectException;
 use yii\web\NotFoundHttpException;
 
-class TasksController extends Controller
+class TasksController extends AuthRequiredController
 {
     const ADDITIONAL_PARAMETERS = [
         'executor_id = null' => 'Без исполнителя'
@@ -29,7 +28,6 @@ class TasksController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**
@@ -42,12 +40,12 @@ class TasksController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'decline'],
+                        'actions' => ['index', 'view', 'decline', 'owner'],
                         'allow' => true,
                         'roles' => ['@']
                     ],
                     [
-                        'actions' => ['create', 'owner', 'end', 'cancel'],
+                        'actions' => ['create', 'end', 'cancel'],
                         'allow' => true,
                         'roles' => ['@'],
                         'matchCallback' => fn () => !Yii::$app->user->identity->is_executor,
@@ -119,8 +117,19 @@ class TasksController extends Controller
     {
         $query = Task::find();
 
-        $query->andFilterWhere(['customer_id' => Yii::$app->user->id]);
+        if (Yii::$app->user->identity->is_executor) {
+            $query->andFilterWhere(['executor_id' => Yii::$app->user->id]);
+        } else {
+            $query->andFilterWhere(['customer_id' => Yii::$app->user->id]);
+        }
+
         $query->andFilterWhere(['status' => $status]);
+
+        if ($type === 'outdated') {
+            $query->andFilterWhere(['<', 'execution_date', date('Y-m-d H:i:s', time())]);
+        } else if ($type === 'inWork') {
+            $query->andFilterWhere(['>', 'execution_date', date('Y-m-d H:i:s', time())]);
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

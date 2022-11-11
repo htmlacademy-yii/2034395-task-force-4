@@ -1,6 +1,6 @@
 <?php
 
-use app\helpers\MainHelpers;
+use app\helpers\NormalizeHelpers;
 use app\models\Response;
 use app\models\Task;
 use yii\helpers\Html;
@@ -30,7 +30,7 @@ use yii\helpers\Html;
         Html::a
         (
             Html::encode($response->executor->username),
-            ['profile/view', 'id' => $response->executor_id],
+            ['profile/index', 'id' => $response->executor_id],
             ['class' => 'link link--block link--big']
         );
         ?>
@@ -46,7 +46,7 @@ use yii\helpers\Html;
             </div>
             <p class="reviews">
                 <?php $reviewsCount = count($response->executor->executorReviews) ?>
-                <?= $reviewsCount . ' ' . MainHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
+                <?= $reviewsCount . ' ' . NormalizeHelpers::getNounPluralForm($reviewsCount, 'отзыв', 'отзыва', 'отзывов') ?>
             </p>
         </div>
         <p class="response-message">
@@ -55,7 +55,7 @@ use yii\helpers\Html;
     </div>
     <div class="feedback-wrapper">
         <p class="info-text">
-            <span class="current-time"><?= MainHelpers::normalizeDate($response->creation_date) ?> </span>назад
+            <span class="current-time"><?= NormalizeHelpers::normalizeDate($response->creation_date) ?> </span>назад
         </p>
         <p class="price price--small"><?= Html::encode($response->price) ?> ₽</p>
     </div>

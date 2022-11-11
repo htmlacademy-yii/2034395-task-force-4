@@ -9,10 +9,9 @@ use app\models\User;
 use app\models\VkAuth;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
-use yii\web\Controller;
 use yii\web\Response;
 
-class VkController extends Controller
+class VkController extends AuthRequiredController
 {
     /**
      * {@inheritDoc}
@@ -20,7 +19,6 @@ class VkController extends Controller
     public function init(): void
     {
         parent::init();
-        Yii::$app->user->loginUrl = ['auth/index'];
     }
 
     /**
